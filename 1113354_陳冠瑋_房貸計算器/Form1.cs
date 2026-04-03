@@ -67,10 +67,6 @@ namespace _1113354_陳冠瑋_房貸計算器
         private ComboBox _cmbDistrict;
         private ComboBox _cmbPresetType;
         private NumericUpDown _numPing;
-        private CheckBox _chkYouthHousing;
-        private NumericUpDown _numYouthCap;
-        private NumericUpDown _numYouthDiscountRate;
-        private NumericUpDown _numYouthDiscountYears;
         private Button _btnEstimatePrice;
         private Button _btnApplyMarketPreset;
         private TextBox _txtDistrictSearch;
@@ -89,10 +85,9 @@ namespace _1113354_陳冠瑋_房貸計算器
         private bool _monthlyHasGrace = false;
         private double _monthlyNormalValue = 0;
         private double _monthlyGraceValue = 0;
-        private string _monthlyFinalOverrideText = string.Empty;
-        private double _currentMonthlyForDti = 0;
-        private NumericUpDown _numAnnualPrepay;
+        private CheckBox _chkNewYouth;
         private NumericUpDown _numMonthlyIncome;
+        private NumericUpDown _numAnnualPrepay;
         private TextBox _txtReportStudentId;
         private TextBox _txtReportStudentName;
         private TextBox _txtReportCourse;
@@ -237,10 +232,6 @@ namespace _1113354_陳冠瑋_房貸計算器
                 if (t >= 1.0)
                 {
                     _resultAnimTimer.Stop();
-                    if (!string.IsNullOrWhiteSpace(_monthlyFinalOverrideText))
-                    {
-                        lblResultMonthly.Text = _monthlyFinalOverrideText;
-                    }
                 }
             };
 
@@ -318,17 +309,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             if (_numAnnualPrepay != null)
             {
                 _tips.SetToolTip(_numAnnualPrepay, "每年固定多還本金，用於提前還款模擬。\n0 代表不啟用。\n");
-            }
-            if (_numMonthlyIncome != null)
-            {
-                _tips.SetToolTip(_numMonthlyIncome, "家庭平均月收入，用於收支比(DTI)儀表板。\n建議至少為月付的 2.5~3 倍。\n");
-            }
-            if (_chkYouthHousing != null)
-            {
-                _tips.SetToolTip(_chkYouthHousing, "啟用新青安分段利率試算（額度上限+優惠年限）。");
-                _tips.SetToolTip(_numYouthCap, "新青安優惠貸款額度上限（元）。");
-                _tips.SetToolTip(_numYouthDiscountRate, "新青安優惠減碼利率（百分點）。");
-                _tips.SetToolTip(_numYouthDiscountYears, "新青安優惠年限。\n優惠期後自動切回一般利率。\n");
             }
             if (_txtReportStudentId != null)
             {
@@ -414,7 +394,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
 
             tableLayoutPanelInput.RowCount += 1;
-            tableLayoutPanelInput.RowStyles.Insert(0, new RowStyle(SizeType.Absolute, 124F));
+            tableLayoutPanelInput.RowStyles.Insert(0, new RowStyle(SizeType.Absolute, 74F));
 
             var lblPreset = new Label
             {
@@ -424,48 +404,23 @@ namespace _1113354_陳冠瑋_房貸計算器
                 TextAlign = ContentAlignment.MiddleRight
             };
 
-            var presetPanel = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0),
-                ColumnCount = 1,
-                RowCount = 2
-            };
-            presetPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
-            presetPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
-
-            var presetTop = new FlowLayoutPanel
+            var presetPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 Margin = new Padding(0),
                 FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                AutoScroll = true
+                WrapContents = true
             };
 
-            var presetBottom = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0),
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                AutoScroll = true
-            };
-
-            _cmbRegion = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 82, Font = new Font("微軟正黑體", 9F) };
-            _cmbDistrict = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 82, Font = new Font("微軟正黑體", 9F) };
-            _txtDistrictSearch = new TextBox { Width = 76, Font = new Font("微軟正黑體", 9F) };
-            _cmbPresetType = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 56, Font = new Font("微軟正黑體", 9F) };
-            _numPing = new NumericUpDown { Width = 54, Height = 24, DecimalPlaces = 1, Minimum = 8, Maximum = 250, Value = 30, Font = new Font("微軟正黑體", 9F), Increment = 0.5M };
-            _chkYouthHousing = new CheckBox { Text = "新青安", AutoSize = true, Margin = new Padding(8, 5, 0, 0), Font = new Font("微軟正黑體", 8.8F, FontStyle.Bold) };
-            _numYouthCap = new NumericUpDown { Width = 96, Height = 24, Font = new Font("微軟正黑體", 9F), Minimum = 1000000, Maximum = 30000000, Increment = 500000, ThousandsSeparator = true, Value = 10000000 };
-            _numYouthDiscountRate = new NumericUpDown { Width = 58, Height = 24, Font = new Font("微軟正黑體", 9F), DecimalPlaces = 3, Minimum = 0, Maximum = 5, Increment = 0.125M, Value = 0.375M };
-            _numYouthDiscountYears = new NumericUpDown { Width = 48, Height = 24, Font = new Font("微軟正黑體", 9F), Minimum = 1, Maximum = 10, Value = 5 };
-            _btnEstimatePrice = new Button { Text = "估價", Width = 44, Height = 25, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold) };
-            _btnApplyMarketPreset = new Button { Text = "套用", Width = 44, Height = 25, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold) };
-            _lblPresetSource = new Label { AutoSize = true, Margin = new Padding(8, 6, 3, 3), Font = new Font("微軟正黑體", 8.5F), ForeColor = Color.Gray, Text = "資料來源：台灣公開統計樣本(示意)" };
-            var lblYouthDiscount = new Label { Text = "減碼%", AutoSize = true, Margin = new Padding(8, 6, 2, 3), ForeColor = Color.DimGray, Font = new Font("微軟正黑體", 8.5F) };
-            var lblYouthYears = new Label { Text = "年", AutoSize = true, Margin = new Padding(5, 6, 2, 3), ForeColor = Color.DimGray, Font = new Font("微軟正黑體", 8.5F) };
+            // (1) 重新調整寬度以減少換行太擠
+            _cmbRegion = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 72, Font = new Font("微軟正黑體", 9F) };
+            _cmbDistrict = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 72, Font = new Font("微軟正黑體", 9F) };
+            _txtDistrictSearch = new TextBox { Width = 64, Font = new Font("微軟正黑體", 9F) };
+            _cmbPresetType = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 52, Font = new Font("微軟正黑體", 9F) };
+            _numPing = new NumericUpDown { Width = 48, Height = 24, DecimalPlaces = 1, Minimum = 8, Maximum = 250, Value = 30, Font = new Font("微軟正黑體", 9F), Increment = 0.5M };
+            _btnEstimatePrice = new Button { Text = "估價", Width = 40, Height = 25, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold) };
+            _btnApplyMarketPreset = new Button { Text = "套用", Width = 40, Height = 25, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold) };
+            _lblPresetSource = new Label { AutoSize = true, Margin = new Padding(5, 6, 3, 3), Font = new Font("微軟正黑體", 8.5F), ForeColor = Color.Gray, Text = "資料來源：台灣公開統計樣本(示意)" };
 
             _cmbRegion.Items.AddRange(_countyUnitPriceWanPerPing.Keys.OrderBy(x => x).ToArray());
             _cmbPresetType.Items.AddRange(new object[] { "大樓", "公寓", "透天", "華廈" });
@@ -479,24 +434,14 @@ namespace _1113354_陳冠瑋_房貸計算器
             EnsureAllTaiwanDistricts();
             PopulateDistricts();
 
-            presetTop.Controls.Add(_cmbRegion);
-            presetTop.Controls.Add(_cmbDistrict);
-            presetTop.Controls.Add(_txtDistrictSearch);
-            presetTop.Controls.Add(_cmbPresetType);
-            presetTop.Controls.Add(_chkYouthHousing);
-            presetTop.Controls.Add(_numYouthCap);
-
-            presetBottom.Controls.Add(_numPing);
-            presetBottom.Controls.Add(_btnEstimatePrice);
-            presetBottom.Controls.Add(_btnApplyMarketPreset);
-            presetBottom.Controls.Add(lblYouthDiscount);
-            presetBottom.Controls.Add(_numYouthDiscountRate);
-            presetBottom.Controls.Add(lblYouthYears);
-            presetBottom.Controls.Add(_numYouthDiscountYears);
-            presetBottom.Controls.Add(_lblPresetSource);
-
-            presetPanel.Controls.Add(presetTop, 0, 0);
-            presetPanel.Controls.Add(presetBottom, 0, 1);
+            presetPanel.Controls.Add(_cmbRegion);
+            presetPanel.Controls.Add(_cmbDistrict);
+            presetPanel.Controls.Add(_txtDistrictSearch);
+            presetPanel.Controls.Add(_cmbPresetType);
+            presetPanel.Controls.Add(_numPing);
+            presetPanel.Controls.Add(_btnEstimatePrice);
+            presetPanel.Controls.Add(_btnApplyMarketPreset);
+            presetPanel.Controls.Add(_lblPresetSource);
 
             tableLayoutPanelInput.Controls.Add(lblPreset, 0, 0);
             tableLayoutPanelInput.Controls.Add(presetPanel, 1, 0);
@@ -539,27 +484,53 @@ namespace _1113354_陳冠瑋_房貸計算器
                 Value = 0
             };
             var lblUnit = new Label { Text = "元 / 年", AutoSize = true, Margin = new Padding(8, 6, 3, 3), ForeColor = Color.Gray };
-            var lblIncome = new Label { Text = "月收入", AutoSize = true, Margin = new Padding(14, 6, 3, 3), ForeColor = Color.Gray };
-            _numMonthlyIncome = new NumericUpDown
-            {
-                Width = 120,
-                Height = 27,
-                Font = new Font("微軟正黑體", 10F),
-                Maximum = 2000000,
-                Minimum = 0,
-                Increment = 5000,
-                ThousandsSeparator = true,
-                Value = 120000
-            };
-            var lblIncomeUnit = new Label { Text = "元 / 月", AutoSize = true, Margin = new Padding(8, 6, 3, 3), ForeColor = Color.Gray };
             prepayPanel.Controls.Add(_numAnnualPrepay);
             prepayPanel.Controls.Add(lblUnit);
-            prepayPanel.Controls.Add(lblIncome);
-            prepayPanel.Controls.Add(_numMonthlyIncome);
-            prepayPanel.Controls.Add(lblIncomeUnit);
 
             tableLayoutPanelInput.Controls.Add(lblPrepay, 0, 6);
             tableLayoutPanelInput.Controls.Add(prepayPanel, 1, 6);
+
+            // 新增：進階設定 (新青安與月收入)
+            var controlsDti = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
+            foreach (var c in controlsDti)
+            {
+                int r = tableLayoutPanelInput.GetRow(c);
+                if (r >= 7) tableLayoutPanelInput.SetRow(c, r + 1);
+            }
+            tableLayoutPanelInput.RowCount += 1;
+            tableLayoutPanelInput.RowStyles.Insert(7, new RowStyle(SizeType.Absolute, 50F));
+
+            var lblAdvFeatures = new Label
+            {
+                Text = "額外設定",
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            var advPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0),
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true
+            };
+
+            _chkNewYouth = new CheckBox { Text = "新青安試算", AutoSize = true, Margin = new Padding(3, 4, 10, 3) };
+
+            var lblMonthlyIncome = new Label { Text = "月薪:", AutoSize = true, Margin = new Padding(3, 5, 2, 3) };
+            _numMonthlyIncome = new NumericUpDown
+            {
+                Width = 100, Height = 27, Font = new Font("微軟正黑體", 9F),
+                Maximum = 10000000, Minimum = 0, Increment = 5000, ThousandsSeparator = true, Value = 0
+            };
+
+            advPanel.Controls.Add(_chkNewYouth);
+            advPanel.Controls.Add(lblMonthlyIncome);
+            advPanel.Controls.Add(_numMonthlyIncome);
+
+            tableLayoutPanelInput.Controls.Add(lblAdvFeatures, 0, 7);
+            tableLayoutPanelInput.Controls.Add(advPanel, 1, 7);
 
             // 新增：報告封面資訊（學號/姓名/課程）
             var controls3 = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
@@ -1244,8 +1215,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             lblResultTotalInt.Text = "NT$ 0";
             lblResultTotalRepay.Text = "NT$ 0";
             lblValidationHint.Text = "";
-            _currentMonthlyForDti = 0;
-            _monthlyFinalOverrideText = string.Empty;
 
             dgvSchedule.ReadOnly = true;
             dgvSchedule.AllowUserToAddRows = false;
@@ -1272,14 +1241,6 @@ namespace _1113354_陳冠瑋_房貸計算器
         {
             double.TryParse(text.Replace(",", ""), out double result);
             return result;
-        }
-
-        private double CalcAnnuityPayment(double principal, double monthlyRate, int months)
-        {
-            if (principal <= 0 || months <= 0) return 0;
-            if (Math.Abs(monthlyRate) < 1e-12) return principal / months;
-            double f = Math.Pow(1 + monthlyRate, months);
-            return principal * monthlyRate * f / (f - 1);
         }
 
         private async void btnCalc_Click(object sender, EventArgs e)
@@ -1370,184 +1331,123 @@ namespace _1113354_陳冠瑋_房貸計算器
             _lastTotalMonths = totalMonths;
             _lastGraceMonths = graceMonths;
 
+            bool isNewYouth = _chkNewYouth != null && _chkNewYouth.Checked;
+            double youthRate = (1.775 / 100.0) / 12.0;
+            int youthMonths = 36; // 優惠 3 年
+
             double monthlyPaymentNormal = 0;
             int remainingMonths = totalMonths - graceMonths;
-            if (remainingMonths > 0)
-            {
-                monthlyPaymentNormal = CalcAnnuityPayment(totalLoan, monthlyRate, remainingMonths);
-            }
             double annualPrepay = _numAnnualPrepay != null ? (double)_numAnnualPrepay.Value : 0;
 
-            bool useYouth = _chkYouthHousing != null && _chkYouthHousing.Checked;
-            double youthCap = _numYouthCap != null ? (double)_numYouthCap.Value : 10000000;
-            double youthDiscountRate = _numYouthDiscountRate != null ? (double)_numYouthDiscountRate.Value : 0.375;
-            int youthDiscountYears = _numYouthDiscountYears != null ? (int)_numYouthDiscountYears.Value : 5;
-
-            double firstMonthInt = totalLoan * monthlyRate;
-            double firstMonthPrin = (graceMonths > 0) ? 0 : (monthlyPaymentNormal - firstMonthInt);
-
-            double youthRepayPayment = 0;
-            double youthPostDiscountPayment = 0;
-            bool youthHasSwitch = false;
-            int youthSwitchMonth = 0;
+            double firstMonthInt = 0;
+            double firstMonthPrin = 0;
 
             _schedule.Clear();
-            
+
             // Generate scheduling in background task to show enterprise asynchronous pattern
             await Task.Run(() => {
                 double tempInterest = 0;
                 double tempRepayment = 0;
                 int monthsUsed = totalMonths;
 
-                if (!useYouth)
+                double loanA = (isNewYouth && totalLoan > 10000000) ? 10000000 : totalLoan;
+                double loanB = (isNewYouth && totalLoan > 10000000) ? totalLoan - 10000000 : 0;
+
+                double balanceA = loanA;
+                double balanceB = loanB;
+
+                double currentPmtA = 0;
+                double currentPmtB = 0;
+
+                if (remainingMonths > 0)
                 {
-                    double balance = totalLoan;
-                    for (int i = 1; i <= totalMonths; i++)
-                    {
-                        double interest = balance * monthlyRate;
-                        double principal = 0;
-                        double payment = 0;
-
-                        if (i <= graceMonths) { principal = 0; payment = interest; }
-                        else { payment = monthlyPaymentNormal; principal = payment - interest; }
-
-                        if (annualPrepay > 0 && i > graceMonths && i % 12 == 0 && balance > 0)
-                        {
-                            double extra = Math.Min(annualPrepay, Math.Max(0, balance - principal));
-                            principal += extra;
-                            payment += extra;
-                        }
-
-                        tempInterest += interest;
-                        tempRepayment += payment;
-                        balance -= principal;
-                        if (balance < 0)
-                        {
-                            tempRepayment += balance;
-                            payment += balance;
-                            principal += balance;
-                            balance = 0;
-                        }
-
-                        _schedule.Add(new AmortizationItem {
-                            Month = i,
-                            Principal = principal.ToString("N2"),
-                            Interest = interest.ToString("N2"),
-                            Payment = payment.ToString("N2"),
-                            Balance = balance.ToString("N2")
-                        });
-
-                        if (balance <= 0)
-                        {
-                            monthsUsed = i;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    double youthLoan = Math.Min(totalLoan, Math.Max(0, youthCap));
-                    double normalLoan = Math.Max(0, totalLoan - youthLoan);
-                    double balanceYouth = youthLoan;
-                    double balanceNormal = normalLoan;
-
-                    double monthlyRateBase = monthlyRate;
-                    double monthlyRateYouthDiscount = Math.Max(0, (annualRate - youthDiscountRate) / 100.0 / 12.0);
-                    int discountMonths = Math.Min(totalMonths, Math.Max(1, youthDiscountYears) * 12);
-                    int repayMonths = Math.Max(1, totalMonths - graceMonths);
-
-                    double paymentNormal = CalcAnnuityPayment(balanceNormal, monthlyRateBase, repayMonths);
-                    double paymentYouth = 0;
-
-                    for (int i = 1; i <= totalMonths; i++)
-                    {
-                        bool inGrace = i <= graceMonths;
-                        bool youthDiscountPhase = i <= discountMonths;
-                        double youthRate = youthDiscountPhase ? monthlyRateYouthDiscount : monthlyRateBase;
-
-                        if (!inGrace && i == graceMonths + 1)
-                        {
-                            paymentYouth = CalcAnnuityPayment(balanceYouth, youthRate, Math.Max(1, totalMonths - i + 1));
-                            youthRepayPayment = paymentNormal + paymentYouth;
-                        }
-
-                        if (!inGrace && i == discountMonths + 1)
-                        {
-                            paymentYouth = CalcAnnuityPayment(balanceYouth, monthlyRateBase, Math.Max(1, totalMonths - i + 1));
-                            youthHasSwitch = true;
-                            youthSwitchMonth = i;
-                            youthPostDiscountPayment = paymentNormal + paymentYouth;
-                        }
-
-                        double interestYouth = balanceYouth * youthRate;
-                        double interestNormal = balanceNormal * monthlyRateBase;
-
-                        double principalYouth = 0;
-                        double principalNormal = 0;
-                        double paymentYouthNow = interestYouth;
-                        double paymentNormalNow = interestNormal;
-
-                        if (!inGrace)
-                        {
-                            paymentYouthNow = paymentYouth;
-                            paymentNormalNow = paymentNormal;
-                            principalYouth = Math.Max(0, paymentYouthNow - interestYouth);
-                            principalNormal = Math.Max(0, paymentNormalNow - interestNormal);
-                        }
-
-                        double principal = principalYouth + principalNormal;
-                        double interest = interestYouth + interestNormal;
-                        double payment = paymentYouthNow + paymentNormalNow;
-
-                        if (annualPrepay > 0 && !inGrace && i % 12 == 0 && (balanceYouth + balanceNormal) > 0)
-                        {
-                            double extra = annualPrepay;
-                            double takeN = Math.Min(extra, balanceNormal);
-                            principalNormal += takeN;
-                            extra -= takeN;
-                            double takeY = Math.Min(extra, balanceYouth);
-                            principalYouth += takeY;
-                            payment += (takeN + takeY);
-                            principal = principalYouth + principalNormal;
-                        }
-
-                        tempInterest += interest;
-                        tempRepayment += payment;
-
-                        balanceYouth -= principalYouth;
-                        balanceNormal -= principalNormal;
-                        if (balanceYouth < 0)
-                        {
-                            tempRepayment += balanceYouth;
-                            payment += balanceYouth;
-                            principal += balanceYouth;
-                            balanceYouth = 0;
-                        }
-                        if (balanceNormal < 0)
-                        {
-                            tempRepayment += balanceNormal;
-                            payment += balanceNormal;
-                            principal += balanceNormal;
-                            balanceNormal = 0;
-                        }
-
-                        double totalBalance = balanceYouth + balanceNormal;
-                        _schedule.Add(new AmortizationItem {
-                            Month = i,
-                            Principal = principal.ToString("N2"),
-                            Interest = interest.ToString("N2"),
-                            Payment = payment.ToString("N2"),
-                            Balance = totalBalance.ToString("N2")
-                        });
-
-                        if (totalBalance <= 0)
-                        {
-                            monthsUsed = i;
-                            break;
-                        }
+                    double rA = isNewYouth ? youthRate : monthlyRate;
+                    currentPmtA = balanceA * rA * Math.Pow(1 + rA, remainingMonths) / (Math.Pow(1 + rA, remainingMonths) - 1);
+                    if (loanB > 0) {
+                        currentPmtB = balanceB * monthlyRate * Math.Pow(1 + monthlyRate, remainingMonths) / (Math.Pow(1 + monthlyRate, remainingMonths) - 1);
                     }
                 }
 
+                monthlyPaymentNormal = currentPmtA + currentPmtB;
+                firstMonthInt = (loanA * (isNewYouth ? youthRate : monthlyRate)) + (loanB * monthlyRate);
+                firstMonthPrin = (graceMonths > 0) ? 0 : (monthlyPaymentNormal - firstMonthInt);
+
+                for (int i = 1; i <= totalMonths; i++)
+                {
+                    double rateA = (isNewYouth && i <= youthMonths) ? youthRate : monthlyRate;
+                    double rateB = monthlyRate;
+
+                    if (isNewYouth && i == youthMonths + 1 && i > graceMonths && balanceA > 0)
+                    {
+                        int remain = totalMonths - i + 1;
+                        if (remain > 0) {
+                            currentPmtA = balanceA * rateA * Math.Pow(1 + rateA, remain) / (Math.Pow(1 + rateA, remain) - 1);
+                        }
+                    }
+
+                    double intA = balanceA * rateA;
+                    double intB = balanceB * rateB;
+                    double interest = intA + intB;
+
+                    double prinA = 0, prinB = 0;
+                    double pmtA = 0, pmtB = 0;
+
+                    if (i <= graceMonths) { 
+                        pmtA = intA; pmtB = intB;
+                    } else { 
+                        pmtA = currentPmtA; prinA = pmtA - intA;
+                        pmtB = currentPmtB; prinB = pmtB - intB;
+                    }
+
+                    double payment = pmtA + pmtB;
+                    double principal = prinA + prinB;
+
+                    if (annualPrepay > 0 && i > graceMonths && i % 12 == 0 && (balanceA + balanceB) > 0)
+                    {
+                        double extra = Math.Min(annualPrepay, Math.Max(0, (balanceA + balanceB) - principal));
+                        principal += extra;
+                        payment += extra;
+
+                        if (balanceB > 0) {
+                            double extraB = Math.Min(extra, balanceB - prinB);
+                            prinB += extraB;
+                            extra -= extraB;
+                        }
+                        if (extra > 0 && balanceA > 0) {
+                            prinA += extra;
+                        }
+                    }
+
+                    tempInterest += interest;
+                    tempRepayment += payment;
+
+                    balanceA -= prinA;
+                    balanceB -= prinB;
+
+                    if (balanceA < 0) {
+                        tempRepayment += balanceA; payment += balanceA;
+                        balanceA = 0;
+                    }
+                    if (balanceB < 0) {
+                        tempRepayment += balanceB; payment += balanceB;
+                        balanceB = 0;
+                    }
+                    double balance = balanceA + balanceB;
+
+                    _schedule.Add(new AmortizationItem {
+                        Month = i,
+                        Principal = principal.ToString("N2"),
+                        Interest = interest.ToString("N2"),
+                        Payment = payment.ToString("N2"),
+                        Balance = balance.ToString("N2")
+                    });
+
+                    if (balance <= 0)
+                    {
+                        monthsUsed = i;
+                        break;
+                    }
+                }
                 totalInterest = tempInterest;
                 totalRepayment = tempRepayment;
                 _effectivePayoffMonths = monthsUsed;
@@ -1556,31 +1456,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             _bs.DataSource = typeof(AmortizationItem);
             _bs.DataSource = _schedule;
             _bs.ResetBindings(false);
-
-            if (_schedule.Count > 0)
-            {
-                firstMonthInt = GetDouble(_schedule[0].Interest);
-                firstMonthPrin = GetDouble(_schedule[0].Principal);
-            }
-
-            _monthlyFinalOverrideText = string.Empty;
-            _currentMonthlyForDti = monthlyPaymentNormal;
-            if (useYouth)
-            {
-                if (youthRepayPayment <= 0) youthRepayPayment = monthlyPaymentNormal;
-                _currentMonthlyForDti = youthHasSwitch
-                    ? Math.Max(youthRepayPayment, youthPostDiscountPayment)
-                    : youthRepayPayment;
-
-                if (youthHasSwitch)
-                {
-                    _monthlyFinalOverrideText = string.Format("NT$ {0:N2}（新青安優惠期後: {1:N2}）", youthRepayPayment, youthPostDiscountPayment);
-                }
-                else
-                {
-                    _monthlyFinalOverrideText = string.Format("NT$ {0:N2}（新青安）", youthRepayPayment);
-                }
-            }
 
             lblResultTotalLoan.Text = "NT$ " + totalLoan.ToString("N2");
             StartResultAnimation(firstMonthInt, firstMonthPrin, totalInterest, totalRepayment, monthlyPaymentNormal, graceMonths > 0, firstMonthInt);
@@ -1631,10 +1506,6 @@ namespace _1113354_陳冠瑋_房貸計算器
                 lblResultMonthly.Text = hasGrace
                     ? "NT$ " + monthlyGrace.ToString("N2") + " (寬限期後: " + monthlyNormal.ToString("N2") + ")"
                     : "NT$ " + monthlyNormal.ToString("N2");
-                if (!string.IsNullOrWhiteSpace(_monthlyFinalOverrideText))
-                {
-                    lblResultMonthly.Text = _monthlyFinalOverrideText;
-                }
                 return;
             }
 
@@ -1731,18 +1602,19 @@ namespace _1113354_陳冠瑋_房貸計算器
         {
             _advancedInputVisible = !_advancedInputVisible;
 
-            int[] advancedRows = { 0, 6, 7 };
+            int[] advancedRows = { 0, 6, 7, 8 };
             foreach (Control c in tableLayoutPanelInput.Controls)
             {
                 int row = tableLayoutPanelInput.GetRow(c);
                 if (advancedRows.Contains(row)) c.Visible = _advancedInputVisible;
             }
 
-            if (tableLayoutPanelInput.RowStyles.Count > 7)
+            if (tableLayoutPanelInput.RowStyles.Count > 8)
             {
-                tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 124F : 0F;
+                tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 74F : 0F;
                 tableLayoutPanelInput.RowStyles[6].Height = _advancedInputVisible ? 50F : 0F;
-                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 94F : 0F;
+                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 50F : 0F;
+                tableLayoutPanelInput.RowStyles[8].Height = _advancedInputVisible ? 94F : 0F;
             }
 
             _btnInputMode.Text = _advancedInputVisible ? "進階" : "基本";
@@ -2505,8 +2377,10 @@ namespace _1113354_陳冠瑋_房貸計算器
             var data = BuildScenarioMetricMatrix();
             if (data.Count == 0) return;
 
-            PointF c = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
-            float r = Math.Min(rect.Width, rect.Height) / 2f - 30;
+            PointF c = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f + 5);
+            float minDim = Math.Min(rect.Width, rect.Height);
+            float padding = (minDim > 150) ? 30 : 15;
+            float r = minDim / 2f - padding;
             int axes = 4;
             string[] labels = { "月付", "總利息", "總還款", "清償月" };
 
@@ -2530,7 +2404,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 double a = -Math.PI / 2 + i * 2 * Math.PI / axes;
                 PointF end = new PointF(c.X + (float)(Math.Cos(a) * r), c.Y + (float)(Math.Sin(a) * r));
                 g.DrawLine(Pens.Gray, c, end);
-                g.DrawString(labels[i], new Font("微軟正黑體", 10), Brushes.DimGray, end.X - 20, end.Y - 20);
+                g.DrawString(labels[i], new Font("微軟正黑體", 8), Brushes.DimGray, end.X - 16, end.Y - 12);
             }
 
             Color[] colors = { Color.FromArgb(90, 41, 128, 185), Color.FromArgb(90, 231, 76, 60), Color.FromArgb(90, 46, 204, 113) };
@@ -2549,47 +2423,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
         }
 
-        private void DrawDtiGauge(Graphics g, Rectangle rect)
-        {
-            double income = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
-            if (income <= 0)
-            {
-                g.DrawString("DTI：請輸入月收入", new Font("微軟正黑體", 9F), Brushes.Gray, rect.X + 4, rect.Y + 30);
-                return;
-            }
-
-            double monthly = _currentMonthlyForDti > 0 ? _currentMonthlyForDti : ParseMoney(lblResultMonthly.Text);
-            double dti = monthly / income;
-            double dtiClamp = Math.Min(0.8, Math.Max(0, dti));
-
-            Rectangle arcRect = new Rectangle(rect.X + 10, rect.Y + 14, 130, 65);
-            using (Pen p1 = new Pen(Color.FromArgb(46, 204, 113), 8))
-            using (Pen p2 = new Pen(Color.FromArgb(241, 196, 15), 8))
-            using (Pen p3 = new Pen(Color.FromArgb(231, 76, 60), 8))
-            {
-                g.DrawArc(p1, arcRect, 180, 78);
-                g.DrawArc(p2, arcRect, 258, 34);
-                g.DrawArc(p3, arcRect, 292, 68);
-            }
-
-            float angle = 180f + (float)(dtiClamp / 0.8 * 180f);
-            PointF c = new PointF(arcRect.X + arcRect.Width / 2f, arcRect.Y + arcRect.Height);
-            float r = arcRect.Width / 2f - 7;
-            PointF tip = new PointF(
-                c.X + (float)(Math.Cos(angle * Math.PI / 180.0) * r),
-                c.Y + (float)(Math.Sin(angle * Math.PI / 180.0) * r));
-            using (Pen n = new Pen(Color.FromArgb(44, 62, 80), 2.2f))
-            {
-                g.DrawLine(n, c, tip);
-            }
-            g.FillEllipse(Brushes.DimGray, c.X - 3, c.Y - 3, 6, 6);
-
-            Brush txtBrush = dti <= 0.35 ? Brushes.SeaGreen : (dti <= 0.5 ? Brushes.DarkGoldenrod : Brushes.Firebrick);
-            g.DrawString("DTI 收支比", new Font("微軟正黑體", 9F, FontStyle.Bold), Brushes.DimGray, rect.X + 156, rect.Y + 16);
-            g.DrawString((dti * 100).ToString("F1") + "%", new Font("Segoe UI", 18F, FontStyle.Bold), txtBrush, rect.X + 156, rect.Y + 34);
-            g.DrawString("月付/收入", new Font("微軟正黑體", 8.5F), Brushes.Gray, rect.X + 158, rect.Y + 64);
-        }
-
         private void DrawScenarioHeatmap(Graphics g, Rectangle rect)
         {
             var data = BuildScenarioMetricMatrix();
@@ -2602,7 +2435,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             string[] colName = { "月付", "總利息", "總還款", "清償月" };
 
             for (int c = 0; c < cols; c++)
-                g.DrawString(colName[c], new Font("微軟正黑體", 9), Brushes.Gray, rect.X + c * cw + 5, rect.Y - 18);
+                g.DrawString(colName[c], new Font("微軟正黑體", 8), Brushes.Gray, rect.X + c * cw + 2, rect.Y - 14);
 
             for (int r = 0; r < rows; r++)
             {
@@ -2612,11 +2445,11 @@ namespace _1113354_陳冠瑋_房貸計算器
                     Color color = Color.FromArgb(50 + (int)(v * 180), 231, 76, 60);
                     using (SolidBrush b = new SolidBrush(color))
                     {
-                        g.FillRectangle(b, rect.X + c * cw + 2, rect.Y + r * rh + 2, cw - 4, rh - 4);
+                        g.FillRectangle(b, rect.X + c * cw + 1, rect.Y + r * rh + 1, cw - 2, rh - 2);
                     }
-                    g.DrawString((v * 100).ToString("F0"), new Font("Consolas", 10, FontStyle.Bold), Brushes.White, rect.X + c * cw + 8, rect.Y + r * rh + 8);
+                    g.DrawString((v * 100).ToString("F0"), new Font("Consolas", 8, FontStyle.Bold), Brushes.White, rect.X + c * cw + 4, rect.Y + r * rh + 4);
                 }
-                g.DrawString("S" + (r + 1), new Font("Consolas", 10), Brushes.Gray, rect.X - 26, rect.Y + r * rh + 8);
+                g.DrawString("S" + (r + 1), new Font("Consolas", 8), Brushes.Gray, rect.X - 20, rect.Y + r * rh + 4);
             }
         }
 
@@ -2995,8 +2828,6 @@ namespace _1113354_陳冠瑋_房貸計算器
                 g.DrawString($"利息: {(totalInterest/totalRepayment*100):F1}%", this.Font, Brushes.Black, legendX + 20, legendY + 28);
             }
 
-            DrawDtiGauge(g, new Rectangle(16, 186, 260, 90));
-
             // Draw enhanced + interactive charts
             int chartX = rectPie.Right + 120;
             int chartWidth = picChart.Width - chartX - 20;
@@ -3120,9 +2951,38 @@ namespace _1113354_陳冠瑋_房貸計算器
                     }
                 }
 
-                // 右下角再加情境雷達 + 熱力矩陣
-                DrawScenarioRadar(g, new Rectangle(chartX + chartWidth - 180, miniY - 10, 84, 84));
-                DrawScenarioHeatmap(g, new Rectangle(chartX + chartWidth - 90, miniY - 10, 86, 84));
+                // 右下角再加情境雷達 + 熱力矩陣 (加寬避免文字重疊)
+                int radarW = 100;
+                int radarH = 75;
+                DrawScenarioRadar(g, new Rectangle(chartX + chartWidth - 270, miniY - 4, radarW, radarH));
+                DrawScenarioHeatmap(g, new Rectangle(chartX + chartWidth - 140, miniY - 4, 130, radarH));
+
+                // 加入 DTI 儀表板 (月付金 / 月收入)
+                double monthlyIncome = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
+                if (monthlyIncome > 0)
+                {
+                    double currentMonthly = GetDouble(lblResultMonthly.Text);
+                    double dti = currentMonthly / Math.Max(1, monthlyIncome);
+
+                    int dtiX = chartX + chartWidth - 360;
+                    int dtiY = miniY + 10;
+                    g.DrawString("收支比 (DTI)", new Font("微軟正黑體", 8F), Brushes.DimGray, dtiX, dtiY - 15);
+
+                    Color dtiColor = Color.FromArgb(46, 204, 113);
+                    string riskLvl = "正常";
+                    if (dti > 0.6) { dtiColor = Color.FromArgb(231, 76, 60); riskLvl = "危險"; }
+                    else if (dti > 0.4) { dtiColor = Color.FromArgb(241, 196, 15); riskLvl = "偏高"; }
+
+                    using (Pen bgPen = new Pen(Color.FromArgb(230, 230, 230), 6))
+                    using (Pen fgPen = new Pen(dtiColor, 6))
+                    {
+                        g.DrawArc(bgPen, dtiX + 10, dtiY, 40, 40, 135, 270);
+                        g.DrawArc(fgPen, dtiX + 10, dtiY, 40, 40, 135, (float)Math.Min(270, dti * 270));
+                    }
+                    StringFormat dtiSf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                    g.DrawString($"{(dti*100):F0}%", new Font("Consolas", 8F, FontStyle.Bold), Brushes.Black, new Rectangle(dtiX + 10, dtiY, 40, 40), dtiSf);
+                    g.DrawString(riskLvl, new Font("微軟正黑體", 8F), new SolidBrush(dtiColor), dtiX + 18, dtiY + 45);
+                }
 
                 string zoomText = _chartZoomMonths == 0 ? "全期間" : ("最近 " + _chartZoomMonths + " 期");
                 g.DrawString("藍:剩餘本金 橘虛線:本金占比 | 視窗: " + zoomText, new Font("微軟正黑體", 8F), Brushes.Gray, chartX, chartY + chartHeight + 2);
