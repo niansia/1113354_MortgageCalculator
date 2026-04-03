@@ -365,6 +365,103 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
 
             rtbAI.Text = "未執行分析...\n提示：按「開始深度試算」後將顯示 AI 財務建議。";
+
+            ApplyModernLeftPanelDesign();
+        }
+
+        private void ApplyModernLeftPanelDesign()
+        {
+            gbInput.Text = "⚙️ 參數設定與智慧決策區";
+
+            var flatControls = new Control[] { txtPrice, txtDownPayment, txtRate, txtGrace, cmbTerm, cmbDownPaymentType, 
+                _cmbRegion, _cmbDistrict, _cmbPresetType, _txtDistrictSearch, _numPing, _numAnnualPrepay, _numMonthlyIncome, 
+                _txtReportStudentId, _txtReportStudentName, _txtReportCourse, _txtReportSchool, _txtReportDepartment, _txtReportAdvisor };
+
+            foreach (var c in flatControls)
+            {
+                if (c == null) continue;
+                if (c is TextBox tb)
+                {
+                    tb.BorderStyle = BorderStyle.FixedSingle;
+                    tb.BackColor = Color.FromArgb(248, 250, 252);
+                    tb.Font = new Font("Consolas", 11.5F, FontStyle.Bold);
+                }
+                else if (c is ComboBox cb)
+                {
+                    cb.FlatStyle = FlatStyle.Flat;
+                    cb.BackColor = Color.FromArgb(248, 250, 252);
+                    cb.Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold);
+                }
+                else if (c is NumericUpDown nud)
+                {
+                    nud.BorderStyle = BorderStyle.FixedSingle;
+                    nud.BackColor = Color.FromArgb(248, 250, 252);
+                    nud.Font = new Font("Consolas", 10.5F, FontStyle.Bold);
+                }
+            }
+
+            if (_btnEstimatePrice != null)
+            {
+                _btnEstimatePrice.BackColor = Color.FromArgb(52, 152, 219);
+                _btnEstimatePrice.ForeColor = Color.White;
+                _btnEstimatePrice.FlatAppearance.BorderSize = 0;
+                _btnEstimatePrice.Font = new Font("微軟正黑體", 9F, FontStyle.Bold);
+                _btnEstimatePrice.Paint += FlatButton_Paint;
+            }
+            if (_btnApplyMarketPreset != null)
+            {
+                _btnApplyMarketPreset.BackColor = Color.FromArgb(46, 204, 113);
+                _btnApplyMarketPreset.ForeColor = Color.White;
+                _btnApplyMarketPreset.FlatAppearance.BorderSize = 0;
+                _btnApplyMarketPreset.Font = new Font("微軟正黑體", 9F, FontStyle.Bold);
+                _btnApplyMarketPreset.Paint += FlatButton_Paint;
+            }
+
+            for (int i = 0; i < tableLayoutPanelInput.RowStyles.Count; i++)
+            {
+                if (tableLayoutPanelInput.RowStyles[i].SizeType == SizeType.Absolute && tableLayoutPanelInput.RowStyles[i].Height == 50F)
+                {
+                    tableLayoutPanelInput.RowStyles[i].Height = 58F;
+                }
+            }
+
+            foreach (Control c in tableLayoutPanelInput.Controls)
+            {
+                if (c is Label lbl && lbl.TextAlign == ContentAlignment.MiddleRight)
+                {
+                    lbl.Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold);
+                    lbl.ForeColor = Color.FromArgb(60, 80, 100);
+                }
+            }
+
+            btnCalc.Font = new Font("微軟正黑體", 14F, FontStyle.Bold);
+            btnReset.Font = new Font("微軟正黑體", 11F, FontStyle.Bold);
+            btnExport.Font = new Font("微軟正黑體", 11F, FontStyle.Bold);
+
+            pnlButtons.Padding = new Padding(0, 5, 0, 0);
+            int btnW = 210;
+            btnCalc.Size = new Size(btnW, 46);
+            btnCalc.Margin = new Padding(3, 5, 3, 8);
+
+            btnReset.Size = new Size((btnW / 2) - 4, 36);
+            btnReset.Margin = new Padding(3, 0, 2, 5);
+
+            btnExport.Size = new Size((btnW / 2) - 3, 36);
+            btnExport.Margin = new Padding(1, 0, 3, 5);
+
+            WireActionBtnHover(btnCalc, btnCalc.BackColor);
+            WireActionBtnHover(btnReset, btnReset.BackColor);
+            WireActionBtnHover(btnExport, btnExport.BackColor);
+
+            lblValidationHint.Padding = new Padding(5, 10, 0, 0);
+        }
+
+        private void WireActionBtnHover(Button btn, Color baseColor)
+        {
+            btn.MouseEnter += (s, e) => { btn.BackColor = ControlPaint.Light(baseColor, 0.15f); btn.Invalidate(); };
+            btn.MouseLeave += (s, e) => { btn.BackColor = baseColor; btn.Invalidate(); };
+            btn.MouseDown += (s, e) => { btn.BackColor = ControlPaint.Dark(baseColor, 0.1f); btn.Invalidate(); };
+            btn.MouseUp += (s, e) => { btn.BackColor = ControlPaint.Light(baseColor, 0.15f); btn.Invalidate(); };
         }
 
         private void InitializeScenarioComparisonTab()
@@ -1703,8 +1800,8 @@ namespace _1113354_陳冠瑋_房貸計算器
             if (tableLayoutPanelInput.RowStyles.Count > 8)
             {
                 tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 100F : 0F;
-                tableLayoutPanelInput.RowStyles[6].Height = _advancedInputVisible ? 50F : 0F;
-                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 50F : 0F;
+                tableLayoutPanelInput.RowStyles[6].Height = _advancedInputVisible ? 58F : 0F;
+                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 58F : 0F;
                 tableLayoutPanelInput.RowStyles[8].Height = _advancedInputVisible ? 94F : 0F;
             }
 
