@@ -394,7 +394,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
 
             tableLayoutPanelInput.RowCount += 1;
-            tableLayoutPanelInput.RowStyles.Insert(0, new RowStyle(SizeType.Absolute, 74F));
+            tableLayoutPanelInput.RowStyles.Insert(0, new RowStyle(SizeType.Absolute, 100F));
 
             var lblPreset = new Label
             {
@@ -1611,7 +1611,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             if (tableLayoutPanelInput.RowStyles.Count > 8)
             {
-                tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 74F : 0F;
+                tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 100F : 0F;
                 tableLayoutPanelInput.RowStyles[6].Height = _advancedInputVisible ? 50F : 0F;
                 tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 50F : 0F;
                 tableLayoutPanelInput.RowStyles[8].Height = _advancedInputVisible ? 94F : 0F;
@@ -2926,10 +2926,11 @@ namespace _1113354_陳冠瑋_房貸計算器
 
                 // 近12期本息構成 mini bars
                 int bars = Math.Min(12, visibleCount);
+                float barsTotalW = Math.Max(20, chartWidth - 380);
                 if (bars > 0)
                 {
                     g.DrawString("近12期本息構成", new Font("微軟正黑體", 8F), Brushes.Gray, chartX, miniY - 12);
-                    float bw = chartWidth / (float)bars;
+                    float bw = barsTotalW / (float)bars;
                     for (int b = 0; b < bars; b++)
                     {
                         int idx = endIdx - bars + 1 + b;
@@ -2954,8 +2955,8 @@ namespace _1113354_陳冠瑋_房貸計算器
                 // 右下角再加情境雷達 + 熱力矩陣 (加寬避免文字重疊)
                 int radarW = 100;
                 int radarH = 75;
-                DrawScenarioRadar(g, new Rectangle(chartX + chartWidth - 270, miniY - 4, radarW, radarH));
-                DrawScenarioHeatmap(g, new Rectangle(chartX + chartWidth - 140, miniY - 4, 130, radarH));
+                DrawScenarioRadar(g, new Rectangle((int)(chartX + chartWidth - 260), miniY - 4, radarW, radarH));
+                DrawScenarioHeatmap(g, new Rectangle((int)(chartX + chartWidth - 140), miniY - 4, 130, radarH));
 
                 // 加入 DTI 儀表板 (月付金 / 月收入)
                 double monthlyIncome = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
@@ -2964,7 +2965,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                     double currentMonthly = GetDouble(lblResultMonthly.Text);
                     double dti = currentMonthly / Math.Max(1, monthlyIncome);
 
-                    int dtiX = chartX + chartWidth - 360;
+                    int dtiX = (int)(chartX + chartWidth - 360);
                     int dtiY = miniY + 10;
                     g.DrawString("收支比 (DTI)", new Font("微軟正黑體", 8F), Brushes.DimGray, dtiX, dtiY - 15);
 
