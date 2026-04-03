@@ -200,6 +200,36 @@ namespace _1113354_陳冠瑋_房貸計算器
             InitializeDefaults();
         }
 
+        private void TabControlHelper_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            TabControl tabControl = sender as TabControl;
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            TabPage page = tabControl.TabPages[e.Index];
+            Rectangle r = e.Bounds;
+
+            bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            Color bg = isSelected ? Color.White : Color.FromArgb(240, 240, 240);
+            Color text = isSelected ? _customAccent : Color.Gray;
+            Font f = isSelected ? new Font("微軟正黑體", 11.5f, FontStyle.Bold) : new Font("微軟正黑體", 11f, FontStyle.Regular);
+
+            using (SolidBrush brush = new SolidBrush(bg))
+            {
+                g.FillRectangle(brush, r);
+            }
+
+            if (isSelected)
+            {
+                using (Pen p = new Pen(_customAccent, 3))
+                {
+                    g.DrawLine(p, r.X, r.Top + 1, r.Right - 1, r.Top + 1);
+                }
+            }
+
+            TextRenderer.DrawText(g, page.Text, f, r, text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+
         private void InitializeAnimationEngine()
         {
             _resultAnimTimer = new Timer();
@@ -299,6 +329,12 @@ namespace _1113354_陳冠瑋_房貸計算器
             LayoutTitleButtons();
             ApplyTheme("明亮");
 
+            // Tab control modern aesthetics
+            tabControlHelper.ItemSize = new Size(140, 36);
+            tabControlHelper.SizeMode = TabSizeMode.Fixed;
+            tabControlHelper.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabControlHelper.DrawItem += TabControlHelper_DrawItem;
+
             _tips.SetToolTip(txtGrace, "寬限期必須小於貸款年限，例如年限20年，寬限期最多19年。");
             _tips.SetToolTip(btnExport, "匯出 CSV 並自動產生 SHA256 驗證檔。\n可用於資料完整性驗證。\n");
             _tips.SetToolTip(cmbTerm, "可直接輸入年限（5~50年），不受固定選項限制。");
@@ -334,18 +370,41 @@ namespace _1113354_陳冠瑋_房貸計算器
         private void InitializeScenarioComparisonTab()
         {
             _tabCompare = new TabPage("📌 情境比較(最多3套)");
-            _tabCompare.Padding = new Padding(8);
+            _tabCompare.Padding = new Padding(12);
+            _tabCompare.BackColor = Color.White;
 
             var topPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Top,
-                Height = 38,
-                FlowDirection = FlowDirection.LeftToRight
+                Height = 48,
+                FlowDirection = FlowDirection.LeftToRight,
+                Padding = new Padding(0, 5, 0, 5)
             };
 
-            _btnAddScenario = new Button { Text = "加入目前方案", Width = 120, Height = 30, FlatStyle = FlatStyle.Flat };
-            _btnClearScenario = new Button { Text = "清空比較", Width = 90, Height = 30, FlatStyle = FlatStyle.Flat };
-            _btnAutoScenario = new Button { Text = "自動生成3方案", Width = 120, Height = 30, FlatStyle = FlatStyle.Flat };
+            _btnAddScenario = new Button { Text = "＋ 加入目前方案", Width = 140, Height = 36, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+            _btnAddScenario.FlatAppearance.BorderSize = 0;
+            _btnAddScenario.BackColor = Color.FromArgb(41, 128, 185);
+            _btnAddScenario.ForeColor = Color.White;
+            _btnAddScenario.Font = new Font("微軟正黑體", 10F, FontStyle.Bold);
+            _btnAddScenario.Paint += FlatButton_Paint;
+
+            _btnAutoScenario = new Button { Text = "⚡ 自動生成 3 方案", Width = 160, Height = 36, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+            _btnAutoScenario.FlatAppearance.BorderSize = 0;
+            _btnAutoScenario.BackColor = Color.FromArgb(39, 174, 96);
+            _btnAutoScenario.ForeColor = Color.White;
+            _btnAutoScenario.Font = new Font("微軟正黑體", 10F, FontStyle.Bold);
+            _btnAutoScenario.Paint += FlatButton_Paint;
+
+            _btnClearScenario = new Button { Text = "🗑 清空比較", Width = 120, Height = 36, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+            _btnClearScenario.FlatAppearance.BorderSize = 0;
+            _btnClearScenario.BackColor = Color.FromArgb(149, 165, 166);
+            _btnClearScenario.ForeColor = Color.White;
+            _btnClearScenario.Font = new Font("微軟正黑體", 10F, FontStyle.Bold);
+            _btnClearScenario.Paint += FlatButton_Paint;
+
+            _btnAddScenario.Margin = new Padding(0, 0, 10, 0);
+            _btnAutoScenario.Margin = new Padding(0, 0, 10, 0);
+
             _btnAddScenario.Click += (s, e) => AddCurrentScenario();
             _btnAutoScenario.Click += (s, e) => AutoGenerateScenarios();
             _btnClearScenario.Click += (s, e) =>
@@ -365,7 +424,14 @@ namespace _1113354_陳冠瑋_房貸計算器
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 RowHeadersVisible = false,
-                BackgroundColor = Color.White
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.None,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor = Color.FromArgb(235, 235, 235),
+                RowTemplate = { Height = 38 },
+                ColumnHeadersHeight = 45,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None
             };
 
             _compareBs.DataSource = _scenarios;
@@ -374,6 +440,12 @@ namespace _1113354_陳冠瑋_房貸計算器
             _tabCompare.Controls.Add(_dgvCompare);
             _tabCompare.Controls.Add(topPanel);
             tabControlHelper.TabPages.Add(_tabCompare);
+
+            // Add custom cell formatting to style values and highlight best ones if needed
+            _dgvCompare.CellFormatting += (s, e) =>
+            {
+                if (e.Value != null && e.RowIndex % 2 == 0) e.CellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            };
         }
 
         private void InitializeInputEnhancements()
@@ -1104,14 +1176,33 @@ namespace _1113354_陳冠瑋_房貸計算器
             dgvSchedule.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvSchedule.EnableHeadersVisualStyles = false;
 
+            // Modernize Schedule Table styling
+            dgvSchedule.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvSchedule.GridColor = Color.FromArgb(235, 235, 235);
+            dgvSchedule.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvSchedule.ColumnHeadersHeight = 45;
+            dgvSchedule.RowTemplate.Height = 36;
+            dgvSchedule.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(249, 251, 252);
+            dgvSchedule.DefaultCellStyle.SelectionBackColor = Color.FromArgb(235, 245, 251);
+            dgvSchedule.DefaultCellStyle.SelectionForeColor = text;
+            dgvSchedule.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+            dgvSchedule.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+            dgvSchedule.ColumnHeadersDefaultCellStyle.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
+
             if (_dgvCompare != null)
             {
                 _dgvCompare.BackgroundColor = surface;
                 _dgvCompare.DefaultCellStyle.BackColor = surface;
                 _dgvCompare.DefaultCellStyle.ForeColor = text;
-                _dgvCompare.ColumnHeadersDefaultCellStyle.BackColor = accent;
+                _dgvCompare.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(52, 73, 94);
                 _dgvCompare.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
                 _dgvCompare.EnableHeadersVisualStyles = false;
+                _dgvCompare.GridColor = Color.FromArgb(235, 235, 235);
+                _dgvCompare.DefaultCellStyle.SelectionBackColor = Color.FromArgb(235, 245, 251);
+                _dgvCompare.DefaultCellStyle.SelectionForeColor = text;
+                _dgvCompare.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+                _dgvCompare.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+                _dgvCompare.ColumnHeadersDefaultCellStyle.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
             }
         }
 
@@ -1223,7 +1314,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             dgvSchedule.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvSchedule.BackgroundColor = Color.White;
             dgvSchedule.BorderStyle = BorderStyle.None;
-            dgvSchedule.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 248, 255);
+            dgvSchedule.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         }
 
         private void NumberOnly_KeyPress(object sender, KeyPressEventArgs e)
