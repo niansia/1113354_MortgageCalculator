@@ -326,6 +326,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             InitializeAdvancedToolbar();
             InitializeInputEnhancements();
             InitializeScenarioComparisonTab();
+            ApplyModernLeftPanelDesign();
             LayoutTitleButtons();
             ApplyTheme("明亮");
 
@@ -462,6 +463,80 @@ namespace _1113354_陳冠瑋_房貸計算器
             btn.MouseLeave += (s, e) => { btn.BackColor = baseColor; btn.Invalidate(); };
             btn.MouseDown += (s, e) => { btn.BackColor = ControlPaint.Dark(baseColor, 0.1f); btn.Invalidate(); };
             btn.MouseUp += (s, e) => { btn.BackColor = ControlPaint.Light(baseColor, 0.15f); btn.Invalidate(); };
+        }
+
+        private void ApplyModernLeftPanelDesign()
+        {
+            if (gbInput != null)
+            {
+                gbInput.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
+                gbInput.ForeColor = Color.FromArgb(52, 73, 94);
+                gbInput.Padding = new Padding(15, 25, 15, 15);
+            }
+
+            if (tableLayoutPanelInput != null)
+            {
+                tableLayoutPanelInput.Padding = new Padding(10);
+                foreach (Control c in tableLayoutPanelInput.Controls)
+                {
+                    if (c is Label lbl)
+                    {
+                        lbl.Font = new Font("微軟正黑體", 10.5F, FontStyle.Regular);
+                        lbl.ForeColor = Color.FromArgb(80, 80, 80);
+                        lbl.Margin = new Padding(3, 10, 5, 10);
+                    }
+                    else if (c is TextBox txt)
+                    {
+                        txt.BorderStyle = BorderStyle.FixedSingle;
+                        txt.Font = new Font("Consolas", 11.5F, FontStyle.Regular);
+                        txt.Margin = new Padding(3, 8, 3, 8);
+                    }
+                    else if (c is ComboBox cmb)
+                    {
+                        cmb.FlatStyle = FlatStyle.Flat;
+                        cmb.Font = new Font("微軟正黑體", 11F, FontStyle.Regular);
+                        cmb.Margin = new Padding(3, 8, 3, 8);
+                    }
+                }
+
+                foreach (Control panel in tableLayoutPanelInput.Controls.OfType<FlowLayoutPanel>())
+                {
+                    foreach (Control inner in panel.Controls)
+                    {
+                        if (inner is TextBox t) t.BorderStyle = BorderStyle.FixedSingle;
+                        if (inner is ComboBox c) c.FlatStyle = FlatStyle.Flat;
+                        if (inner is NumericUpDown n)
+                        {
+                            n.BorderStyle = BorderStyle.FixedSingle;
+                            n.Font = new Font("Consolas", 10.5F, FontStyle.Regular);
+                        }
+                    }
+                }
+            }
+
+            if (btnCalc != null)
+            {
+                btnCalc.Font = new Font("微軟正黑體", 14F, FontStyle.Bold);
+                btnCalc.Cursor = Cursors.Hand;
+                btnCalc.FlatStyle = FlatStyle.Flat;
+                btnCalc.FlatAppearance.BorderSize = 0;
+            }
+
+            if (btnReset != null)
+            {
+                btnReset.Font = new Font("微軟正黑體", 11F, FontStyle.Bold);
+                btnReset.Cursor = Cursors.Hand;
+                btnReset.FlatStyle = FlatStyle.Flat;
+                btnReset.FlatAppearance.BorderSize = 0;
+            }
+
+            if (btnExport != null)
+            {
+                btnExport.Font = new Font("微軟正黑體", 11F, FontStyle.Bold);
+                btnExport.Cursor = Cursors.Hand;
+                btnExport.FlatStyle = FlatStyle.Flat;
+                btnExport.FlatAppearance.BorderSize = 0;
+            }
         }
 
         private void InitializeScenarioComparisonTab()
@@ -1265,6 +1340,9 @@ namespace _1113354_陳冠瑋_房貸計算器
             btnCalc.BackColor = Color.FromArgb(39, 174, 96);
             btnExport.BackColor = accent;
             btnReset.BackColor = Color.FromArgb(149, 165, 166);
+            btnCalc.ForeColor = Color.White;
+            btnExport.ForeColor = Color.White;
+            btnReset.ForeColor = Color.White;
 
             dgvSchedule.BackgroundColor = surface;
             dgvSchedule.DefaultCellStyle.BackColor = surface;
