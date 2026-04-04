@@ -3398,7 +3398,8 @@ namespace _1113354_陳冠瑋_房貸計算器
 
                 // 近12期本息構成 mini bars
                 int bars = Math.Min(12, visibleCount);
-                float barsTotalW = Math.Max(20, chartWidth - 380);
+                // 保留右側資訊視覺區(雷達/熱力/Tornado)避免互相重疊
+                float barsTotalW = Math.Max(20, chartWidth - 560);
                 if (bars > 0)
                 {
                     g.DrawString("近12期本息構成", new Font("微軟正黑體", 8F), Brushes.Gray, chartX, miniY - 12);
@@ -3427,7 +3428,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 // 右下角再加情境雷達 + 熱力矩陣 (加寬避免文字重疊)
                 int radarW = 100;
                 int radarH = 75;
-                DrawTornadoMini(g, new Rectangle((int)(chartX + chartWidth - 520), miniY - 2, 145, radarH));
+                DrawTornadoMini(g, new Rectangle((int)(chartX + chartWidth - 420), miniY - 2, 145, radarH));
                 DrawScenarioRadar(g, new Rectangle((int)(chartX + chartWidth - 260), miniY - 4, radarW, radarH));
                 DrawScenarioHeatmap(g, new Rectangle((int)(chartX + chartWidth - 140), miniY - 4, 130, radarH));
 
