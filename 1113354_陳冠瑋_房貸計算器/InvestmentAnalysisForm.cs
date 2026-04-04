@@ -26,6 +26,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
         private Label lblKpi;
         private DataGridView dgvCashFlow;
+        private ToolTip _tips = new ToolTip();
 
         public InvestmentAnalysisForm(double propertyPrice, double downPayment, double monthlyPayment, int totalMonths, double loanRate)
         {
@@ -43,9 +44,9 @@ namespace _1113354_陳冠瑋_房貸計算器
         private void InitializeUI()
         {
             this.Text = "📈 不動產投資報酬分析 (IRR, Cap Rate, Cash-on-Cash)";
-            this.Size = new Size(1000, 680);
+            this.Size = new Size(1100, 750);
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = Color.FromArgb(248, 250, 252);
+            this.BackColor = Color.FromArgb(244, 246, 249);
             this.Font = new Font("微軟正黑體", 10F);
             this.ShowIcon = false;
 
@@ -61,42 +62,69 @@ namespace _1113354_陳冠瑋_房貸計算器
             };
             this.Controls.Add(lblTitle);
 
-            var pnlTop = new FlowLayoutPanel
+            var pnlLeft = new Panel
             {
-                Dock = DockStyle.Top,
-                Height = 85,
-                Padding = new Padding(10, 10, 10, 5),
+                Dock = DockStyle.Left,
+                Width = 280,
                 BackColor = Color.White,
-                WrapContents = true,
+                Padding = new Padding(10)
+            };
+            this.Controls.Add(pnlLeft);
+
+            var pnlMain = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(15)
+            };
+            this.Controls.Add(pnlMain);
+            pnlMain.BringToFront();
+
+            var pnlMainTitle = new Label
+            {
+                Text = "⚙️ 預估營運參數設定",
+                Dock = DockStyle.Top,
+                Height = 40,
+                Font = new Font("微軟正黑體", 12F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 62, 80),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            pnlLeft.Controls.Add(pnlMainTitle);
+
+            var flowLeft = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
                 AutoScroll = true
             };
-            this.Controls.Add(pnlTop);
-            pnlTop.BringToFront();
+            pnlLeft.Controls.Add(flowLeft);
+            flowLeft.BringToFront();
 
             // Default defaults
             decimal defRent = (decimal)Math.Round((_propertyPrice * 0.035) / 12.0 / 100) * 100; // 3.5% basic yield
 
-            numGrossRent = AddInput(pnlTop, "預估月租金($):", defRent, 0, 10000000, 1000);
-            numVacancyRate = AddInput(pnlTop, "空置率(Vacancy %):", 5.0M, 0, 50, 0.5M);
-            numOpexRate = AddInput(pnlTop, "營運雜支(OpEx %):", 15.0M, 0, 80, 1M);
-            numPropApp = AddInput(pnlTop, "年房價增值(%):", 2.5M, -10, 30, 0.5M);
-            numSellingCost = AddInput(pnlTop, "處分賣房成本(%):", 4.0M, 0, 15, 0.5M);
-            numHoldingYears = AddInput(pnlTop, "投資持有期(年):", 10M, 1, 50, 1M);
+            numGrossRent = AddInput(flowLeft, "預估營運月租金($)", defRent, 0, 10000000, 1000, "物件滿租狀態下的標準月租金。\n它是計算 NOI 營運淨利的核心基礎。");
+            numVacancyRate = AddInput(flowLeft, "預估空置率(%)", 5.0M, 0, 50, 0.5M, "一年中平均沒有租客的月份比例，\n商辦一般抓 5%~10%。");
+            numOpexRate = AddInput(flowLeft, "營運雜支負擔(%)", 15.0M, 0, 80, 1M, "代管費、公共區域維修、折舊保險等，\n通常占租金收益的 15%~30%。");
+            numPropApp = AddInput(flowLeft, "保守年房價增值(%)", 2.5M, -10, 30, 0.5M, "影響最終出場賣房淨現值 (NPV) 的關鍵，\n高增值將帶來豐厚的 IRR 報酬。");
+            numSellingCost = AddInput(flowLeft, "處分賣房交易成本(%)", 4.0M, 0, 15, 0.5M, "未來賣出房屋時會折損的隱含成本\n包含房仲費、代書費、增值稅。");
+            numHoldingYears = AddInput(flowLeft, "預備投資持有期(年)", 10M, 1, 50, 1M, "試算要持有幾年後出場，這會影響\n現金流貼現時間與期末殘值。");
 
             var btnCalc = new Button
             {
-                Text = "計算報酬率",
+                Text = "→ 計算報酬率與現金流",
                 BackColor = Color.FromArgb(41, 128, 185),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Width = 100,
-                Height = 32,
-                Margin = new Padding(15, 8, 0, 0),
-                Font = new Font("微軟正黑體", 10F, FontStyle.Bold)
+                Width = flowLeft.Width - 25,
+                Height = 40,
+                Margin = new Padding(10, 20, 0, 20),
+                Font = new Font("微軟正黑體", 11F, FontStyle.Bold),
+                Cursor = Cursors.Hand
             };
             btnCalc.FlatAppearance.BorderSize = 0;
             btnCalc.Click += (s, e) => CalculateMetrics();
-            pnlTop.Controls.Add(btnCalc);
+            flowLeft.Controls.Add(btnCalc);
 
             lblKpi = new Label
             {
@@ -108,15 +136,18 @@ namespace _1113354_陳冠瑋_房貸計算器
                 ForeColor = Color.FromArgb(44, 62, 80),
                 BorderStyle = BorderStyle.FixedSingle
             };
-            this.Controls.Add(lblKpi);
-            lblKpi.BringToFront();
+            pnlMain.Controls.Add(lblKpi);
+
+            var space = new Panel { Dock = DockStyle.Top, Height = 10 };
+            pnlMain.Controls.Add(space);
+            space.BringToFront();
 
             dgvCashFlow = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
+                BorderStyle = BorderStyle.FixedSingle,
                 RowHeadersVisible = false,
                 ReadOnly = true,
                 AllowUserToAddRows = false,
@@ -130,23 +161,67 @@ namespace _1113354_陳冠瑋_房貸計算器
             dgvCashFlow.DefaultCellStyle.Padding = new Padding(4);
             dgvCashFlow.RowTemplate.Height = 30;
 
-            this.Controls.Add(dgvCashFlow);
+            pnlMain.Controls.Add(dgvCashFlow);
             dgvCashFlow.BringToFront();
         }
 
-        private NumericUpDown AddInput(FlowLayoutPanel pnl, string label, decimal val, decimal min, decimal max, decimal inc)
+        private NumericUpDown AddInput(FlowLayoutPanel parent, string labelText, decimal val, decimal min, decimal max, decimal inc, string helpText)
         {
-            pnl.Controls.Add(new Label { Text = label, AutoSize = true, Margin = new Padding(10, 12, 0, 0) });
-            
+            var pnl = new FlowLayoutPanel
+            {
+                Width = parent.Width - 20,
+                Height = 65,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = new Padding(5, 5, 0, 10),
+                WrapContents = true
+            };
+
+            var lbl = new Label
+            {
+                Text = labelText,
+                AutoSize = true,
+                Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(60, 80, 100),
+                Margin = new Padding(5, 5, 5, 0)
+            };
+
+            var btnHelp = new Label
+            {
+                Text = "?",
+                Size = new Size(18, 18),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(170, 180, 190),
+                Font = new Font("Arial", 8, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Help,
+                Margin = new Padding(0, 5, 0, 0)
+            };
+            var path = new GraphicsPath();
+            path.AddEllipse(0, 0, 18, 18);
+            btnHelp.Region = new Region(path);
+            _tips.SetToolTip(btnHelp, helpText);
+
+            var spacer = new Label { Width = pnl.Width, Height = 0, Margin = new Padding(0) }; 
+
             if (val < min) val = min;
             if (val > max) val = max;
 
             var num = new NumericUpDown
             {
-                Minimum = min, Maximum = max, Value = val, Increment = inc, Width = 80,
-                DecimalPlaces = inc < 1 ? 1 : 0, Margin = new Padding(2, 10, 8, 0)
+                Minimum = min, Maximum = max, Value = val, Increment = inc,
+                Width = pnl.Width - 10,
+                DecimalPlaces = inc < 1 ? 1 : 0,
+                Font = new Font("Consolas", 11F),
+                Margin = new Padding(5, 5, 5, 0),
+                BorderStyle = BorderStyle.FixedSingle
             };
+
+            pnl.Controls.Add(lbl);
+            pnl.Controls.Add(btnHelp);
+            pnl.Controls.Add(spacer);
             pnl.Controls.Add(num);
+            parent.Controls.Add(pnl);
+
             return num;
         }
 

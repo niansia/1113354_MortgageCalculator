@@ -1004,8 +1004,8 @@ namespace _1113354_陳冠瑋_房貸計算器
                 AutoScroll = true
             };
             this.Controls.Add(_pnlToolbar);
-            _pnlToolbar.BringToFront();
-            lblMainTitle.BringToFront();
+            _pnlToolbar.SendToBack();
+            lblMainTitle.SendToBack();
 
             _btnAdvancedForm = CreateToolbarButton("🧠 理論分析", "運用 NPV 與機會成本等進階財務理論，計算買房的真實總體成本", (s, e) => ShowAdvancedMetrics());
             _btnRentVsBuy = CreateToolbarButton("⚖️ 租買模型", "利用 DCF 現金流貼現計算租房與買房的資產交叉點", (s, e) => ShowRentVsBuy());
@@ -1124,6 +1124,10 @@ namespace _1113354_陳冠瑋_房貸計算器
             right -= (_btnMaximize.Width + 6);
 
             btnMinimize.Location = new Point(right - btnMinimize.Width, top);
+
+            btnClose.BringToFront();
+            btnMinimize.BringToFront();
+            if (_btnMaximize != null) _btnMaximize.BringToFront();
         }
 
         private void ToggleWindowState()

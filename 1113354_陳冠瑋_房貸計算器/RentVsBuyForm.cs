@@ -27,6 +27,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private List<double> _buyNetWorth = new List<double>();
         private List<double> _rentNetWorth = new List<double>();
         private int _breakevenYear = -1;
+        private ToolTip _tips = new ToolTip();
 
         public RentVsBuyForm(double propertyPrice, double downPayment, double monthlyMortgage, int termYears, double loanRate)
         {
@@ -44,9 +45,9 @@ namespace _1113354_陳冠瑋_房貸計算器
         private void InitializeUI()
         {
             this.Text = "⚖️ 資本配置模型: 租房 vs 買房 (DCF 貼現現金流 & 機會成本)";
-            this.Size = new Size(950, 700);
+            this.Size = new Size(1100, 750);
             this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = Color.FromArgb(248, 250, 252);
+            this.BackColor = Color.FromArgb(244, 246, 249);
             this.Font = new Font("微軟正黑體", 10F);
             this.ShowIcon = false;
 
@@ -62,40 +63,67 @@ namespace _1113354_陳冠瑋_房貸計算器
             };
             this.Controls.Add(lblTitle);
 
-            var pnlTop = new FlowLayoutPanel
+            var pnlLeft = new Panel
             {
-                Dock = DockStyle.Top,
-                Height = 80,
-                Padding = new Padding(15),
+                Dock = DockStyle.Left,
+                Width = 280,
                 BackColor = Color.White,
-                WrapContents = false
+                Padding = new Padding(10)
             };
+            this.Controls.Add(pnlLeft);
+
+            var pnlMain = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(15)
+            };
+            this.Controls.Add(pnlMain);
+            pnlMain.BringToFront();
+
+            var pnlMainTitle = new Label
+            {
+                Text = "⚙️ 參數變數設定區",
+                Dock = DockStyle.Top,
+                Height = 40,
+                Font = new Font("微軟正黑體", 12F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 62, 80),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            pnlLeft.Controls.Add(pnlMainTitle);
+
+            var flowLeft = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true
+            };
+            pnlLeft.Controls.Add(flowLeft);
+            flowLeft.BringToFront();
 
             double initRent = Math.Round(_propertyPrice / 400.0);
 
-            numRent = AddInput(pnlTop, "首年預估月租($):", (decimal)initRent, 1000, 500000, 1000);
-            numRentInf = AddInput(pnlTop, "租金年漲幅(%):", 2.0M, 0, 10, 0.1M);
-            numPropApp = AddInput(pnlTop, "房價年增值(%):", 2.5M, -5, 15, 0.1M);
-            numInvest = AddInput(pnlTop, "無風險投資率(%):", 5.0M, 0, 20, 0.1M);
-            numPropTax = AddInput(pnlTop, "持有成本/稅金(%):", 0.6M, 0, 5, 0.1M);
+            numRent = AddInput(flowLeft, "首年預估月租($)", (decimal)initRent, 1000, 500000, 1000, "該物件在市場上的合理租金。\n將以年計算作為租房者的現金流出。");
+            numRentInf = AddInput(flowLeft, "租金年漲幅(%)", 2.0M, 0, 10, 0.1M, "預估每年租金的上漲幅度 (通膨)，\n一般假設在 1% ~ 3% 之間。");
+            numPropApp = AddInput(flowLeft, "房價年增值(%)", 2.5M, -5, 15, 0.1M, "買房者享有的資產增值紅利。\n長線來看台灣房市約有 2%~5% 增幅。");
+            numInvest = AddInput(flowLeft, "無風險投資率(%)", 5.0M, 0, 20, 0.1M, "租客將未用的頭期款與每月剩餘現金流\n投入股市或ETF的平均年化報酬。");
+            numPropTax = AddInput(flowLeft, "持有成本/稅金(%)", 0.6M, 0, 5, 0.1M, "買房者每年需繳納的地價稅、房屋稅\n及修繕管理維護折舊費。");
 
             var btnCalc = new Button
             {
-                Text = "重新演算",
+                Text = "→ 重新演算",
                 BackColor = Color.FromArgb(41, 128, 185),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Width = 90,
-                Height = 30,
-                Margin = new Padding(20, 8, 0, 0),
-                Font = new Font("微軟正黑體", 10F, FontStyle.Bold)
+                Width = flowLeft.Width - 25,
+                Height = 40,
+                Margin = new Padding(10, 20, 0, 20),
+                Font = new Font("微軟正黑體", 11F, FontStyle.Bold),
+                Cursor = Cursors.Hand
             };
             btnCalc.FlatAppearance.BorderSize = 0;
             btnCalc.Click += (s, e) => CalculateModel();
-            pnlTop.Controls.Add(btnCalc);
-
-            this.Controls.Add(pnlTop);
-            pnlTop.BringToFront();
+            flowLeft.Controls.Add(btnCalc);
 
             lblReport = new Label
             {
@@ -104,34 +132,83 @@ namespace _1113354_陳冠瑋_房貸計算器
                 Padding = new Padding(15),
                 Font = new Font("Consolas", 11.5F),
                 BackColor = Color.FromArgb(236, 240, 241),
-                ForeColor = Color.FromArgb(44, 62, 80)
+                ForeColor = Color.FromArgb(44, 62, 80),
+                BorderStyle = BorderStyle.FixedSingle
             };
-            this.Controls.Add(lblReport);
-            lblReport.BringToFront();
+            pnlMain.Controls.Add(lblReport);
+
+            var space = new Panel { Dock = DockStyle.Top, Height = 10 };
+            pnlMain.Controls.Add(space);
+            space.BringToFront();
 
             picChart = new PictureBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.White
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
             };
             picChart.Paint += PicChart_Paint;
-            this.Controls.Add(picChart);
+            pnlMain.Controls.Add(picChart);
             picChart.BringToFront();
         }
 
-        private NumericUpDown AddInput(FlowLayoutPanel pnl, string label, decimal val, decimal min, decimal max, decimal inc)
+        private NumericUpDown AddInput(FlowLayoutPanel parent, string labelText, decimal val, decimal min, decimal max, decimal inc, string helpText)
         {
-            pnl.Controls.Add(new Label { Text = label, AutoSize = true, Margin = new Padding(10, 12, 3, 0) });
+            var pnl = new FlowLayoutPanel
+            {
+                Width = parent.Width - 20,
+                Height = 65,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = new Padding(5, 5, 0, 10),
+                WrapContents = true
+            };
+
+            var lbl = new Label
+            {
+                Text = labelText,
+                AutoSize = true,
+                Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(60, 80, 100),
+                Margin = new Padding(5, 5, 5, 0)
+            };
+
+            var btnHelp = new Label
+            {
+                Text = "?",
+                Size = new Size(18, 18),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(170, 180, 190),
+                Font = new Font("Arial", 8, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Help,
+                Margin = new Padding(0, 5, 0, 0)
+            };
+            var path = new GraphicsPath();
+            path.AddEllipse(0, 0, 18, 18);
+            btnHelp.Region = new Region(path);
+            _tips.SetToolTip(btnHelp, helpText);
+
+            var spacer = new Label { Width = pnl.Width, Height = 0, Margin = new Padding(0) }; 
 
             if (val < min) val = min;
             if (val > max) val = max;
 
             var num = new NumericUpDown
             {
-                Minimum = min, Maximum = max, Value = val, Increment = inc, Width = 85,
-                DecimalPlaces = inc < 1 ? 1 : 0, Margin = new Padding(0, 10, 10, 0)
+                Minimum = min, Maximum = max, Value = val, Increment = inc,
+                Width = pnl.Width - 10,
+                DecimalPlaces = inc < 1 ? 1 : 0,
+                Font = new Font("Consolas", 11F),
+                Margin = new Padding(5, 5, 5, 0),
+                BorderStyle = BorderStyle.FixedSingle
             };
+
+            pnl.Controls.Add(lbl);
+            pnl.Controls.Add(btnHelp);
+            pnl.Controls.Add(spacer);
             pnl.Controls.Add(num);
+            parent.Controls.Add(pnl);
+
             return num;
         }
 
