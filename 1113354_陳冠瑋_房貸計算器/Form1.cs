@@ -1618,7 +1618,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             int termYears;
             if (!int.TryParse(cmbTerm.Text, out termYears) || termYears < 5 || termYears > 50)
             {
-                errorProvider1.SetError(cmbTerm, "貸款年限需介於 5~50 年");
                 errors.Add("貸款年限請輸入 5~50 年之間，可自行輸入如 22、35。\n");
                 hasError = true;
                 termYears = 20;
@@ -1627,14 +1626,12 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             if (graceYears < 0)
             {
-                errorProvider1.SetError(txtGrace, "寬限期不可為負值");
                 errors.Add("寬限期不可為負數。\n");
                 hasError = true;
             }
 
             if (graceYears >= termYears)
             {
-                errorProvider1.SetError(txtGrace, "寬限期必須小於貸款年限");
                 errors.Add("寬限期設定不合邏輯：使用寬限期必須小於貸款年限。\n例如年限 20 年，寬限期最多 19 年。");
                 hasError = true;
             }
@@ -1643,6 +1640,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             {
                 lblValidationHint.Text = "⚠ 參數不正確：\n- " + string.Join("\n- ", errors);
                 rtbAI.Text = "目前無法產生分析，請先修正左側輸入參數。\n\n" + string.Join("\n", errors);
+                MessageBox.Show("輸入參數有誤，請依提示修正：\n\n- " + string.Join("\n- ", errors), "參數驗證失敗", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
