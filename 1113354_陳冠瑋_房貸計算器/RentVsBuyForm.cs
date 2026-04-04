@@ -122,9 +122,13 @@ namespace _1113354_陳冠瑋_房貸計算器
         private NumericUpDown AddInput(FlowLayoutPanel pnl, string label, decimal val, decimal min, decimal max, decimal inc)
         {
             pnl.Controls.Add(new Label { Text = label, AutoSize = true, Margin = new Padding(10, 12, 3, 0) });
+
+            if (val < min) val = min;
+            if (val > max) val = max;
+
             var num = new NumericUpDown
             {
-                Value = val, Minimum = min, Maximum = max, Increment = inc, Width = 85,
+                Minimum = min, Maximum = max, Value = val, Increment = inc, Width = 85,
                 DecimalPlaces = inc < 1 ? 1 : 0, Margin = new Padding(0, 10, 10, 0)
             };
             pnl.Controls.Add(num);
