@@ -367,6 +367,9 @@ namespace _1113354_陳冠瑋_房貸計算器
 
         private void ApplyModernLeftPanelDesign()
         {
+            if (gbInput.Tag != null) return;
+            gbInput.Tag = true;
+
             gbInput.Text = "⚙️ 參數設定與核心分析";
             gbInput.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
             gbInput.Margin = new Padding(5, 10, 5, 5);
@@ -376,11 +379,12 @@ namespace _1113354_陳冠瑋_房貸計算器
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                BackColor = Color.Transparent
+                BackColor = Color.White
             };
             gbInput.Controls.Remove(tableLayoutPanelInput);
             scrollPanel.Controls.Add(tableLayoutPanelInput);
             gbInput.Controls.Add(scrollPanel);
+            scrollPanel.BringToFront();
 
             tableLayoutPanelInput.Dock = DockStyle.Top;
             tableLayoutPanelInput.AutoSize = true;
