@@ -101,7 +101,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             lblKpi = new Label
             {
                 Dock = DockStyle.Top,
-                Height = 120,
+                Height = 140,
                 Padding = new Padding(15),
                 Font = new Font("Consolas", 11.5F, FontStyle.Bold),
                 BackColor = Color.FromArgb(235, 245, 251),

@@ -367,7 +367,9 @@ namespace _1113354_陳冠瑋_房貸計算器
 
         private void ApplyModernLeftPanelDesign()
         {
-            gbInput.Text = "⚙️ 參數設定與智慧決策區";
+            gbInput.Text = "⚙️ 參數設定與核心分析";
+            gbInput.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
+            gbInput.Margin = new Padding(5, 10, 5, 5);
 
             var flatControls = new Control[] { txtPrice, txtDownPayment, txtRate, txtGrace, cmbTerm, cmbDownPaymentType, 
                 _cmbRegion, _cmbDistrict, _cmbPresetType, _txtDistrictSearch, _numPing, _numAnnualPrepay, _numMonthlyIncome, 
@@ -421,12 +423,63 @@ namespace _1113354_陳冠瑋_房貸計算器
                 }
             }
 
+            Dictionary<Control, string> helpTexts = new Dictionary<Control, string>
+            {
+                { lblPrice, "請填入房屋總價（此值會自動更新總貸款金額）。\n您也可透過上方選擇區域套用統計均價。" },
+                { lblDownPayment, "您準備的首付購屋金額，至少需佔總價的 20% 左右。\n不足部分將由銀行貸款補足。" },
+                { lblRate, "目前市場或銀行核定的年化貸款利率（%）。\n一般首購房貸約在 1.7% ~ 2.5% 上下。" },
+                { lblTerm, "預定分多少年攤還完畢。台灣地區多為 20~40 年期。\n年限越長，月負擔越小，但總利息越多。" },
+                { lblGrace, "允許您在初期只繳利息、不償還本金的年限。\n雖然可大幅減輕初期壓力，但寬限期後負擔會加劇。" }
+            };
+
             foreach (Control c in tableLayoutPanelInput.Controls)
             {
                 if (c is Label lbl && lbl.TextAlign == ContentAlignment.MiddleRight)
                 {
                     lbl.Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold);
                     lbl.ForeColor = Color.FromArgb(60, 80, 100);
+
+                    if (helpTexts.TryGetValue(lbl, out string tooltipMsg))
+                    {
+                         Label helper = new Label
+                         {
+                             Text = "?",
+                             Size = new Size(18, 18),
+                             ForeColor = Color.White,
+                             BackColor = Color.FromArgb(170, 180, 190),
+                             Font = new Font("Arial", 8, FontStyle.Bold),
+                             TextAlign = ContentAlignment.MiddleCenter,
+                             Cursor = Cursors.Help,
+                             AutoSize = false,
+                             Margin = new Padding(0, lbl.Margin.Top + 6, 5, 0)
+                         };
+                         var path = new GraphicsPath();
+                         path.AddEllipse(0, 0, 18, 18);
+                         helper.Region = new Region(path);
+
+                         _tips.SetToolTip(helper, tooltipMsg);
+
+                         var pnl = new FlowLayoutPanel
+                         {
+                             Dock = DockStyle.Fill,
+                             FlowDirection = FlowDirection.RightToLeft,
+                             Margin = new Padding(0),
+                             AutoSize = false
+                         };
+                         if (lbl.Parent != null)
+                         {
+                             TableLayoutPanel tlp = lbl.Parent as TableLayoutPanel;
+                             var pos = tlp.GetPositionFromControl(lbl);
+
+                             tlp.Controls.Remove(lbl);
+                             lbl.AutoSize = true;
+                             lbl.Margin = new Padding(0, 6, 0, 0);
+
+                             pnl.Controls.Add(lbl);
+                             pnl.Controls.Add(helper);
+                             tlp.Controls.Add(pnl, pos.Column, pos.Row);
+                         }
+                    }
                 }
             }
 
@@ -952,18 +1005,19 @@ namespace _1113354_陳冠瑋_房貸計算器
             };
             this.Controls.Add(_pnlToolbar);
             _pnlToolbar.BringToFront();
+            lblMainTitle.BringToFront();
 
-            _btnAdvancedForm = CreateToolbarButton("🧠 理論分析", (s, e) => ShowAdvancedMetrics());
-            _btnRentVsBuy = CreateToolbarButton("⚖️ 租買模型", (s, e) => ShowRentVsBuy());
-            _btnInvestAnalysis = CreateToolbarButton("🏢 投報分析", (s, e) => ShowInvestmentAnalysis());
-            _btnStressTest = CreateToolbarButton("📉 利率壓測", (s, e) => RunStressTest());
-            _btnMonteCarlo = CreateToolbarButton("🎲 隨機壓測", (s, e) => RunMonteCarloStressTest());
-            _btnCopySummary = CreateToolbarButton("📋 複製摘要", (s, e) => CopySummaryToClipboard());
-            _btnExportPdf = CreateToolbarButton("💾 匯出 PDF", (s, e) => ExportPdfReport());
-            _btnPdfTemplate = CreateToolbarButton("📄 版型:學術", (s, e) => TogglePdfTemplateMode());
-            _btnInputMode = CreateToolbarButton("⚙️ 進階輸入", (s, e) => ToggleInputMode());
-            _btnAnimStrength = CreateToolbarButton("🎬 動畫開關", (s, e) => ToggleAnimationStrength());
-            _btnCustomTheme = CreateToolbarButton("🎨 自訂色彩", (s, e) => {
+            _btnAdvancedForm = CreateToolbarButton("🧠 理論分析", "運用 NPV 與機會成本等進階財務理論，計算買房的真實總體成本", (s, e) => ShowAdvancedMetrics());
+            _btnRentVsBuy = CreateToolbarButton("⚖️ 租買模型", "利用 DCF 現金流貼現計算租房與買房的資產交叉點", (s, e) => ShowRentVsBuy());
+            _btnInvestAnalysis = CreateToolbarButton("🏢 投報分析", "商辦投資分析模型，包含 IRR 內部報酬率與現金回報率", (s, e) => ShowInvestmentAnalysis());
+            _btnStressTest = CreateToolbarButton("📉 利率壓測", "壓力測試利率上升 1%~2% 時您的月負擔能力", (s, e) => RunStressTest());
+            _btnMonteCarlo = CreateToolbarButton("🎲 隨機壓測", "蒙地卡羅隨機推演未來利率波動的極端情境", (s, e) => RunMonteCarloStressTest());
+            _btnCopySummary = CreateToolbarButton("📋 複製摘要", "將右側總結數據直接複製為文字，方便貼到 LINE 或文件", (s, e) => CopySummaryToClipboard());
+            _btnExportPdf = CreateToolbarButton("💾 匯出 PDF", "匯出一份具有專業圖表的 PDF 分析報告", (s, e) => ExportPdfReport());
+            _btnPdfTemplate = CreateToolbarButton("📄 版型:學術", "切換 PDF 輸出版型：商務簡報風 或 學術論文風", (s, e) => TogglePdfTemplateMode());
+            _btnInputMode = CreateToolbarButton("⚙️ 進階輸入", "開啟/關閉寬限期、額外還款等隱藏參數", (s, e) => ToggleInputMode());
+            _btnAnimStrength = CreateToolbarButton("🎬 動畫開關", "調整數字跑動的特效速度", (s, e) => ToggleAnimationStrength());
+            _btnCustomTheme = CreateToolbarButton("🎨 自訂色彩", "自行挑選您喜愛的主題顏色", (s, e) => {
                 using (var dlg = new ColorDialog()) {
                     dlg.Color = _customAccent;
                     if (dlg.ShowDialog() == DialogResult.OK) {
@@ -1009,7 +1063,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             _pnlToolbar.Controls.Add(_cmbScale);
         }
 
-        private Button CreateToolbarButton(string text, EventHandler onClick)
+        private Button CreateToolbarButton(string text, string tooltipHint, EventHandler onClick)
         {
             var btn = new Button
             {
@@ -1031,6 +1085,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             btn.MouseLeave += (s, e) => { btn.BackColor = Color.White; btn.FlatAppearance.BorderColor = Color.FromArgb(220, 220, 220); };
 
             btn.Click += onClick;
+            _tips.SetToolTip(btn, tooltipHint);
             return btn;
         }
 
