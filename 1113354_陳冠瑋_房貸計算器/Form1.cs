@@ -3218,6 +3218,48 @@ namespace _1113354_陳冠瑋_房貸計算器
             return sb.ToString();
         }
 
+        private void DrawTornadoMini(Graphics g, Rectangle rect)
+        {
+            if (rect.Width < 80 || rect.Height < 40) return;
+
+            double price = GetDouble(txtPrice.Text);
+            double downVal = GetDouble(txtDownPayment.Text);
+            double down = cmbDownPaymentType.SelectedIndex == 0 ? price * (downVal / 100.0) : downVal;
+            int term;
+            if (!int.TryParse(cmbTerm.Text, out term)) term = 20;
+            int grace = (int)GetDouble(txtGrace.Text);
+            double rate = GetDouble(txtRate.Text);
+
+            double baseMonthly = EstimateMonthlyPaymentSimple(price, down, term, rate);
+            if (baseMonthly <= 0) return;
+
+            var impacts = new List<Tuple<string, double>>();
+            impacts.Add(Tuple.Create("利率+0.5%", Math.Abs(EstimateMonthlyPaymentSimple(price, down, term, rate + 0.5) - baseMonthly)));
+            impacts.Add(Tuple.Create("年限+5年", Math.Abs(EstimateMonthlyPaymentSimple(price, down, Math.Min(50, term + 5), rate) - baseMonthly)));
+            double downPlus = Math.Min(price * 0.8, down + (price * 0.05));
+            impacts.Add(Tuple.Create("自備+5%", Math.Abs(EstimateMonthlyPaymentSimple(price, downPlus, term, rate) - baseMonthly)));
+            impacts.Add(Tuple.Create("寬限+1年", baseMonthly * Math.Max(0, grace + 1) * 0.035));
+
+            var sorted = impacts.OrderByDescending(x => x.Item2).Take(4).ToList();
+            double maxImpact = Math.Max(1, sorted.Max(x => x.Item2));
+
+            g.DrawString("Tornado", new Font("微軟正黑體", 8F, FontStyle.Bold), Brushes.DimGray, rect.X, rect.Y - 12);
+
+            int rowH = Math.Max(14, rect.Height / 4);
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                var item = sorted[i];
+                int y = rect.Y + i * rowH;
+                int barW = (int)((item.Item2 / maxImpact) * (rect.Width - 58));
+                Color c = i == 0 ? Color.FromArgb(231, 76, 60) : Color.FromArgb(52, 152, 219);
+                using (SolidBrush b = new SolidBrush(Color.FromArgb(180, c)))
+                {
+                    g.FillRectangle(b, rect.X + 52, y + 2, Math.Max(2, barW), rowH - 4);
+                }
+                g.DrawString(item.Item1, new Font("微軟正黑體", 7.5F), Brushes.Gray, rect.X, y + 1);
+            }
+        }
+
         private void picChart_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -3385,6 +3427,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 // 右下角再加情境雷達 + 熱力矩陣 (加寬避免文字重疊)
                 int radarW = 100;
                 int radarH = 75;
+                DrawTornadoMini(g, new Rectangle((int)(chartX + chartWidth - 520), miniY - 2, 145, radarH));
                 DrawScenarioRadar(g, new Rectangle((int)(chartX + chartWidth - 260), miniY - 4, radarW, radarH));
                 DrawScenarioHeatmap(g, new Rectangle((int)(chartX + chartWidth - 140), miniY - 4, 130, radarH));
 
