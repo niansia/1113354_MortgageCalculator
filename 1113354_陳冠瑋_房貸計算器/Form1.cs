@@ -492,11 +492,11 @@ namespace _1113354_陳冠瑋_房貸計算器
             btnCalc.Size = new Size(btnW, 46);
             btnCalc.Margin = new Padding(3, 5, 3, 8);
 
-            btnReset.Size = new Size((btnW / 2) - 4, 36);
-            btnReset.Margin = new Padding(3, 0, 2, 5);
+            btnReset.Size = new Size((btnW / 2) - 4, 38);
+            btnReset.Margin = new Padding(3, 0, 2, 8);
 
-            btnExport.Size = new Size((btnW / 2) - 3, 36);
-            btnExport.Margin = new Padding(1, 0, 3, 5);
+            btnExport.Size = new Size((btnW / 2) - 3, 38);
+            btnExport.Margin = new Padding(1, 0, 3, 8);
 
             WireActionBtnHover(btnCalc, btnCalc.BackColor);
             WireActionBtnHover(btnReset, btnReset.BackColor);
