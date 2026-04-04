@@ -566,16 +566,23 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             lblValidationHint.Padding = new Padding(5, 10, 0, 0);
 
-            // Setup error provider properly so it does not get cutoff
+            // Set error provider alignment to Left so it renders inside the UI, instead of being cut off by right edge bounds
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.Icon = SystemIcons.Warning;
             errorProvider1.BlinkRate = 0;
-            // Set positive padding so icon renders inside the textbox padding instead of being drawn out of bounds
-            errorProvider1.SetIconPadding(txtPrice, -20);
-            errorProvider1.SetIconPadding(txtDownPayment, -20);
-            errorProvider1.SetIconPadding(txtRate, -20);
-            errorProvider1.SetIconPadding(cmbTerm, -20);
-            errorProvider1.SetIconPadding(txtGrace, -20);
+            // Draw the error icon on the LEFT side of the input control to prevent being cut off because it's too close to the layout boundary
+            errorProvider1.SetIconAlignment(txtPrice, ErrorIconAlignment.MiddleLeft);
+            errorProvider1.SetIconAlignment(txtDownPayment, ErrorIconAlignment.MiddleLeft);
+            errorProvider1.SetIconAlignment(txtRate, ErrorIconAlignment.MiddleLeft);
+            errorProvider1.SetIconAlignment(cmbTerm, ErrorIconAlignment.MiddleLeft);
+            errorProvider1.SetIconAlignment(txtGrace, ErrorIconAlignment.MiddleLeft);
+
+            // Adding a small padding from the left edge so it looks nice inside the border box.
+            errorProvider1.SetIconPadding(txtPrice, 3);
+            errorProvider1.SetIconPadding(txtDownPayment, 3);
+            errorProvider1.SetIconPadding(txtRate, 3);
+            errorProvider1.SetIconPadding(cmbTerm, 3);
+            errorProvider1.SetIconPadding(txtGrace, 3);
         }
 
         private void WireActionBtnHover(Button btn, Color baseColor)
