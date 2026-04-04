@@ -44,6 +44,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private ToolTip _tips = new ToolTip();
         private float _currentScale = 1f;
         private Color _customAccent = Color.FromArgb(41, 128, 185);
+        private FlowLayoutPanel _pnlToolbar;
         private ComboBox _cmbTheme;
         private ComboBox _cmbScale;
         private Button _btnCustomTheme;
@@ -937,157 +938,94 @@ namespace _1113354_陳冠瑋_房貸計算器
             _btnMaximize.BringToFront();
             WireWindowButtonHover(_btnMaximize, false);
 
-            _cmbTheme = new ComboBox
+            _pnlToolbar = new FlowLayoutPanel
             {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(90, 24)
+                Dock = DockStyle.Top,
+                Height = 44,
+                BackColor = Color.FromArgb(240, 244, 248),
+                Padding = new Padding(12, 6, 12, 6),
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoScroll = true
             };
-            _cmbTheme.Items.AddRange(new object[] { "明亮", "夜間", "自定" });
-            _cmbTheme.SelectedIndex = 0;
-            _cmbTheme.SelectedIndexChanged += (s, e) => ApplyTheme(_cmbTheme.SelectedItem.ToString());
+            this.Controls.Add(_pnlToolbar);
+            _pnlToolbar.BringToFront();
 
-            _cmbScale = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(80, 24)
-            };
-            _cmbScale.Items.AddRange(new object[] { "100%", "110%", "125%", "140%" });
-            _cmbScale.SelectedIndex = 0;
-            _cmbScale.SelectedIndexChanged += (s, e) =>
-            {
-                float target = 1f;
-                string text = _cmbScale.SelectedItem.ToString().Replace("%", "");
-                if (float.TryParse(text, out float percent))
-                {
-                    target = percent / 100f;
-                }
-                ApplyScale(target);
-            };
-
-            _btnCustomTheme = new Button
-            {
-                Text = "色彩",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(52, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnCustomTheme.FlatAppearance.BorderColor = Color.LightGray;
-            _btnCustomTheme.Click += (s, e) =>
-            {
-                using (var dlg = new ColorDialog())
-                {
+            _btnAdvancedForm = CreateToolbarButton("🧠 理論分析", (s, e) => ShowAdvancedMetrics());
+            _btnStressTest = CreateToolbarButton("📉 利率壓測", (s, e) => RunStressTest());
+            _btnMonteCarlo = CreateToolbarButton("🎲 隨機壓測", (s, e) => RunMonteCarloStressTest());
+            _btnCopySummary = CreateToolbarButton("📋 複製摘要", (s, e) => CopySummaryToClipboard());
+            _btnExportPdf = CreateToolbarButton("💾 匯出 PDF", (s, e) => ExportPdfReport());
+            _btnPdfTemplate = CreateToolbarButton("📄 版型:學術", (s, e) => TogglePdfTemplateMode());
+            _btnInputMode = CreateToolbarButton("⚙️ 進階輸入", (s, e) => ToggleInputMode());
+            _btnAnimStrength = CreateToolbarButton("🎬 動畫開關", (s, e) => ToggleAnimationStrength());
+            _btnCustomTheme = CreateToolbarButton("🎨 自訂色彩", (s, e) => {
+                using (var dlg = new ColorDialog()) {
                     dlg.Color = _customAccent;
-                    if (dlg.ShowDialog() == DialogResult.OK)
-                    {
+                    if (dlg.ShowDialog() == DialogResult.OK) {
                         _customAccent = dlg.Color;
                         _cmbTheme.SelectedItem = "自定";
                         ApplyTheme("自定");
                     }
                 }
+            });
+
+            _cmbTheme = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("微軟正黑體", 9.5F), Size = new Size(80, 26), Margin = new Padding(6, 4, 3, 3) };
+            _cmbTheme.Items.AddRange(new object[] { "明亮", "夜間", "自定" });
+            _cmbTheme.SelectedIndex = 0;
+            _cmbTheme.SelectedIndexChanged += (s, e) => ApplyTheme(_cmbTheme.SelectedItem.ToString());
+
+            _cmbScale = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("微軟正黑體", 9.5F), Size = new Size(70, 26), Margin = new Padding(3, 4, 3, 3) };
+            _cmbScale.Items.AddRange(new object[] { "100%", "110%", "125%", "140%" });
+            _cmbScale.SelectedIndex = 0;
+            _cmbScale.SelectedIndexChanged += (s, e) => {
+                float target = 1f;
+                string text = _cmbScale.SelectedItem.ToString().Replace("%", "");
+                if (float.TryParse(text, out float percent)) target = percent / 100f;
+                ApplyScale(target);
             };
 
-            _btnStressTest = new Button
+            var split1 = new Label { Width = 1, Height = 28, BackColor = Color.LightGray, Margin = new Padding(10, 2, 10, 2) };
+            var split2 = new Label { Width = 1, Height = 28, BackColor = Color.LightGray, Margin = new Padding(10, 2, 10, 2) };
+
+            _pnlToolbar.Controls.Add(_btnAdvancedForm);
+            _pnlToolbar.Controls.Add(_btnStressTest);
+            _pnlToolbar.Controls.Add(_btnMonteCarlo);
+            _pnlToolbar.Controls.Add(split1);
+            _pnlToolbar.Controls.Add(_btnCopySummary);
+            _pnlToolbar.Controls.Add(_btnExportPdf);
+            _pnlToolbar.Controls.Add(_btnPdfTemplate);
+            _pnlToolbar.Controls.Add(split2);
+            _pnlToolbar.Controls.Add(_btnInputMode);
+            _pnlToolbar.Controls.Add(_btnAnimStrength);
+            _pnlToolbar.Controls.Add(_btnCustomTheme);
+            _pnlToolbar.Controls.Add(_cmbTheme);
+            _pnlToolbar.Controls.Add(_cmbScale);
+        }
+
+        private Button CreateToolbarButton(string text, EventHandler onClick)
+        {
+            var btn = new Button
             {
-                Text = "壓測",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(52, 24),
+                Text = text,
+                Font = new Font("微軟正黑體", 9.5F, FontStyle.Bold),
+                AutoSize = true,
+                MinimumSize = new Size(80, 28),
+                Height = 28,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
+                Cursor = Cursors.Hand,
+                Margin = new Padding(3, 2, 3, 2),
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(44, 62, 80)
             };
-            _btnStressTest.FlatAppearance.BorderColor = Color.LightGray;
-            _btnStressTest.Click += (s, e) => RunStressTest();
+            btn.FlatAppearance.BorderColor = Color.FromArgb(220, 220, 220);
+            btn.FlatAppearance.BorderSize = 1;
 
-            _btnMonteCarlo = new Button
-            {
-                Text = "隨機壓測",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(72, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnMonteCarlo.FlatAppearance.BorderColor = Color.LightGray;
-            _btnMonteCarlo.Click += (s, e) => RunMonteCarloStressTest();
+            btn.MouseEnter += (s, e) => { btn.BackColor = Color.FromArgb(245, 247, 250); btn.FlatAppearance.BorderColor = _customAccent; };
+            btn.MouseLeave += (s, e) => { btn.BackColor = Color.White; btn.FlatAppearance.BorderColor = Color.FromArgb(220, 220, 220); };
 
-            _btnCopySummary = new Button
-            {
-                Text = "複製",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(52, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnCopySummary.FlatAppearance.BorderColor = Color.LightGray;
-            _btnCopySummary.Click += (s, e) => CopySummaryToClipboard();
-
-            _btnExportPdf = new Button
-            {
-                Text = "PDF",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(52, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnExportPdf.FlatAppearance.BorderColor = Color.LightGray;
-            _btnExportPdf.Click += (s, e) => ExportPdfReport();
-
-            _btnPdfTemplate = new Button
-            {
-                Text = "學術",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(60, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnPdfTemplate.FlatAppearance.BorderColor = Color.LightGray;
-            _btnPdfTemplate.Click += (s, e) => TogglePdfTemplateMode();
-
-            _btnInputMode = new Button
-            {
-                Text = "進階",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(56, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnInputMode.FlatAppearance.BorderColor = Color.LightGray;
-            _btnInputMode.Click += (s, e) => ToggleInputMode();
-
-            _btnAdvancedForm = new Button
-            {
-                Text = "進階理論",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(72, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnAdvancedForm.FlatAppearance.BorderColor = Color.LightGray;
-            _btnAdvancedForm.Click += (s, e) => ShowAdvancedMetrics();
-
-            _btnAnimStrength = new Button
-            {
-                Text = "動畫:高",
-                Font = new Font("微軟正黑體", 9F),
-                Size = new Size(78, 24),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White
-            };
-            _btnAnimStrength.FlatAppearance.BorderColor = Color.LightGray;
-            _btnAnimStrength.Click += (s, e) => ToggleAnimationStrength();
-
-            lblMainTitle.Controls.Add(_cmbTheme);
-            lblMainTitle.Controls.Add(_cmbScale);
-            lblMainTitle.Controls.Add(_btnCustomTheme);
-            lblMainTitle.Controls.Add(_btnStressTest);
-            lblMainTitle.Controls.Add(_btnMonteCarlo);
-            lblMainTitle.Controls.Add(_btnCopySummary);
-            lblMainTitle.Controls.Add(_btnInputMode);
-            lblMainTitle.Controls.Add(_btnAnimStrength);
-            lblMainTitle.Controls.Add(_btnPdfTemplate);
-            lblMainTitle.Controls.Add(_btnExportPdf);
-            lblMainTitle.Controls.Add(_btnAdvancedForm);
+            btn.Click += onClick;
+            return btn;
         }
 
         private void WireWindowButtonHover(Label button, bool isClose)
@@ -1125,18 +1063,6 @@ namespace _1113354_陳冠瑋_房貸計算器
             right -= (_btnMaximize.Width + 6);
 
             btnMinimize.Location = new Point(right - btnMinimize.Width, top);
-
-            _btnExportPdf.Location = new Point(this.ClientSize.Width - 420, 18);
-            _btnAdvancedForm.Location = new Point(this.ClientSize.Width - 498, 18);
-            _btnPdfTemplate.Location = new Point(this.ClientSize.Width - 564, 18);
-            _btnAnimStrength.Location = new Point(this.ClientSize.Width - 648, 18);
-            _btnInputMode.Location = new Point(this.ClientSize.Width - 710, 18);
-            _btnCopySummary.Location = new Point(this.ClientSize.Width - 768, 18);
-            _btnMonteCarlo.Location = new Point(this.ClientSize.Width - 846, 18);
-            _btnStressTest.Location = new Point(this.ClientSize.Width - 904, 18);
-            _btnCustomTheme.Location = new Point(this.ClientSize.Width - 962, 18);
-            _cmbScale.Location = new Point(this.ClientSize.Width - 1047, 18);
-            _cmbTheme.Location = new Point(this.ClientSize.Width - 1142, 18);
         }
 
         private void ToggleWindowState()
@@ -1169,7 +1095,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 ? PdfTemplateMode.BusinessBrief
                 : PdfTemplateMode.AcademicZh;
 
-            _btnPdfTemplate.Text = _pdfTemplateMode == PdfTemplateMode.AcademicZh ? "學術" : "商務";
+            _btnPdfTemplate.Text = _pdfTemplateMode == PdfTemplateMode.AcademicZh ? "📄 版型:學術" : "📄 版型:商務";
             _tips.SetToolTip(_btnPdfTemplate, _pdfTemplateMode == PdfTemplateMode.AcademicZh
                 ? "目前：中文學術格式（IEEE風格章節）"
                 : "目前：商務簡報格式");
@@ -1269,33 +1195,11 @@ namespace _1113354_陳冠瑋_房貸計算器
             _cmbTheme.ForeColor = Color.FromArgb(35, 35, 35);
             _cmbScale.BackColor = Color.White;
             _cmbScale.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnCustomTheme.BackColor = Color.White;
-            _btnCustomTheme.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnCustomTheme.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnStressTest.BackColor = Color.White;
-            _btnStressTest.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnStressTest.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnMonteCarlo.BackColor = Color.White;
-            _btnMonteCarlo.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnMonteCarlo.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnCopySummary.BackColor = Color.White;
-            _btnCopySummary.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnCopySummary.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnInputMode.BackColor = Color.White;
-            _btnInputMode.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnInputMode.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnAnimStrength.BackColor = Color.White;
-            _btnAnimStrength.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnAnimStrength.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnPdfTemplate.BackColor = Color.White;
-            _btnPdfTemplate.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnPdfTemplate.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnExportPdf.BackColor = Color.White;
-            _btnExportPdf.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnExportPdf.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
-            _btnAdvancedForm.BackColor = Color.White;
-            _btnAdvancedForm.ForeColor = Color.FromArgb(35, 35, 35);
-            _btnAdvancedForm.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
+
+            if (_pnlToolbar != null)
+            {
+                _pnlToolbar.BackColor = mode == "夜間" ? Color.FromArgb(45, 52, 60) : Color.FromArgb(240, 244, 248);
+            }
 
             btnCalc.BackColor = Color.FromArgb(39, 174, 96);
             btnExport.BackColor = accent;
@@ -1843,7 +1747,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 tableLayoutPanelInput.RowStyles[8].Height = _advancedInputVisible ? 94F : 0F;
             }
 
-            _btnInputMode.Text = _advancedInputVisible ? "進階" : "基本";
+            _btnInputMode.Text = _advancedInputVisible ? "⚙️ 進階輸入" : "⚙️ 基本輸入";
         }
 
         private void ToggleAnimationStrength()
@@ -1856,20 +1760,20 @@ namespace _1113354_陳冠瑋_房貸計算器
                 _currentAnimTicks = AnimTicks;
                 _uiMotionTimer.Interval = 80;
                 _uiMotionTimer.Start();
-                _btnAnimStrength.Text = "動畫:高";
+                _btnAnimStrength.Text = "🎬 動畫:高";
             }
             else if (_animStrengthLevel == 1)
             {
                 _currentAnimTicks = 8;
                 _uiMotionTimer.Interval = 170;
                 _uiMotionTimer.Start();
-                _btnAnimStrength.Text = "動畫:低";
+                _btnAnimStrength.Text = "🎬 動畫:低";
             }
             else
             {
                 _currentAnimTicks = 1;
                 _uiMotionTimer.Stop();
-                _btnAnimStrength.Text = "動畫:關";
+                _btnAnimStrength.Text = "🎬 動畫:關";
             }
         }
 
