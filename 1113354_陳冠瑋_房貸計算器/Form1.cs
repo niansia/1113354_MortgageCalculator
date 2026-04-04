@@ -565,6 +565,17 @@ namespace _1113354_陳冠瑋_房貸計算器
             WireActionBtnHover(btnExport, btnExport.BackColor);
 
             lblValidationHint.Padding = new Padding(5, 10, 0, 0);
+
+            // Setup error provider properly so it does not get cutoff
+            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider1.Icon = SystemIcons.Warning;
+            errorProvider1.BlinkRate = 0;
+            // Set positive padding so icon renders inside the textbox padding instead of being drawn out of bounds
+            errorProvider1.SetIconPadding(txtPrice, -20);
+            errorProvider1.SetIconPadding(txtDownPayment, -20);
+            errorProvider1.SetIconPadding(txtRate, -20);
+            errorProvider1.SetIconPadding(cmbTerm, -20);
+            errorProvider1.SetIconPadding(txtGrace, -20);
         }
 
         private void WireActionBtnHover(Button btn, Color baseColor)
