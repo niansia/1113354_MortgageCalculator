@@ -90,7 +90,7 @@
             this.lblMainTitle.Name = "lblMainTitle";
             this.lblMainTitle.Size = new System.Drawing.Size(984, 60);
             this.lblMainTitle.TabIndex = 0;
-            this.lblMainTitle.Text = "  🏡 企業級個人房貸試算中心";
+            this.lblMainTitle.Text = "  🏡 個人房貸計算器";
             this.lblMainTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             
             // btnClose / btnMinimize Control Box

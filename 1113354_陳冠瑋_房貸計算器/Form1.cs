@@ -50,6 +50,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private Button _btnStressTest;
         private Button _btnCopySummary;
         private Button _btnExportPdf;
+        private Button _btnAdvancedForm;
         private Button _btnMonteCarlo;
         private Button _btnInputMode;
         private Button _btnAnimStrength;
@@ -1054,6 +1055,17 @@ namespace _1113354_陳冠瑋_房貸計算器
             _btnInputMode.FlatAppearance.BorderColor = Color.LightGray;
             _btnInputMode.Click += (s, e) => ToggleInputMode();
 
+            _btnAdvancedForm = new Button
+            {
+                Text = "進階理論",
+                Font = new Font("微軟正黑體", 9F),
+                Size = new Size(72, 24),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.White
+            };
+            _btnAdvancedForm.FlatAppearance.BorderColor = Color.LightGray;
+            _btnAdvancedForm.Click += (s, e) => ShowAdvancedMetrics();
+
             _btnAnimStrength = new Button
             {
                 Text = "動畫:高",
@@ -1075,6 +1087,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             lblMainTitle.Controls.Add(_btnAnimStrength);
             lblMainTitle.Controls.Add(_btnPdfTemplate);
             lblMainTitle.Controls.Add(_btnExportPdf);
+            lblMainTitle.Controls.Add(_btnAdvancedForm);
         }
 
         private void WireWindowButtonHover(Label button, bool isClose)
@@ -1114,15 +1127,16 @@ namespace _1113354_陳冠瑋_房貸計算器
             btnMinimize.Location = new Point(right - btnMinimize.Width, top);
 
             _btnExportPdf.Location = new Point(this.ClientSize.Width - 420, 18);
-            _btnPdfTemplate.Location = new Point(this.ClientSize.Width - 486, 18);
-            _btnAnimStrength.Location = new Point(this.ClientSize.Width - 570, 18);
-            _btnInputMode.Location = new Point(this.ClientSize.Width - 632, 18);
-            _btnCopySummary.Location = new Point(this.ClientSize.Width - 690, 18);
-            _btnMonteCarlo.Location = new Point(this.ClientSize.Width - 768, 18);
-            _btnStressTest.Location = new Point(this.ClientSize.Width - 826, 18);
-            _btnCustomTheme.Location = new Point(this.ClientSize.Width - 884, 18);
-            _cmbScale.Location = new Point(this.ClientSize.Width - 969, 18);
-            _cmbTheme.Location = new Point(this.ClientSize.Width - 1064, 18);
+            _btnAdvancedForm.Location = new Point(this.ClientSize.Width - 498, 18);
+            _btnPdfTemplate.Location = new Point(this.ClientSize.Width - 564, 18);
+            _btnAnimStrength.Location = new Point(this.ClientSize.Width - 648, 18);
+            _btnInputMode.Location = new Point(this.ClientSize.Width - 710, 18);
+            _btnCopySummary.Location = new Point(this.ClientSize.Width - 768, 18);
+            _btnMonteCarlo.Location = new Point(this.ClientSize.Width - 846, 18);
+            _btnStressTest.Location = new Point(this.ClientSize.Width - 904, 18);
+            _btnCustomTheme.Location = new Point(this.ClientSize.Width - 962, 18);
+            _cmbScale.Location = new Point(this.ClientSize.Width - 1047, 18);
+            _cmbTheme.Location = new Point(this.ClientSize.Width - 1142, 18);
         }
 
         private void ToggleWindowState()
@@ -1159,6 +1173,32 @@ namespace _1113354_陳冠瑋_房貸計算器
             _tips.SetToolTip(_btnPdfTemplate, _pdfTemplateMode == PdfTemplateMode.AcademicZh
                 ? "目前：中文學術格式（IEEE風格章節）"
                 : "目前：商務簡報格式");
+        }
+
+        private void ShowAdvancedMetrics()
+        {
+            if (totalLoan <= 0)
+            {
+                MessageBox.Show("請先完成試算，再開啟進階理論分析。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            double price = GetDouble(txtPrice.Text);
+            double downPaymentAmount = price - totalLoan;
+            double annualRate = GetDouble(txtRate.Text);
+            int termYears;
+            if (!int.TryParse(cmbTerm.Text, out termYears)) termYears = 20;
+
+            double monthlyPaymentNormal = GetDouble(lblResultMonthly.Text);
+            if (monthlyPaymentNormal <= 0 && _schedule.Count > 0)
+            {
+               monthlyPaymentNormal = GetDouble(_schedule[_schedule.Count - 1].Payment); 
+            }
+
+            using (var dlg = new AdvancedMetricsForm(totalLoan, downPaymentAmount, monthlyPaymentNormal, termYears * 12, annualRate))
+            {
+                dlg.ShowDialog(this);
+            }
         }
 
         private void ApplyScale(float targetScale)
@@ -1253,6 +1293,9 @@ namespace _1113354_陳冠瑋_房貸計算器
             _btnExportPdf.BackColor = Color.White;
             _btnExportPdf.ForeColor = Color.FromArgb(35, 35, 35);
             _btnExportPdf.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
+            _btnAdvancedForm.BackColor = Color.White;
+            _btnAdvancedForm.ForeColor = Color.FromArgb(35, 35, 35);
+            _btnAdvancedForm.FlatAppearance.BorderColor = Color.FromArgb(120, accent);
 
             btnCalc.BackColor = Color.FromArgb(39, 174, 96);
             btnExport.BackColor = accent;
