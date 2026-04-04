@@ -16,15 +16,6 @@ using System.Windows.Forms;
 
 namespace _1113354_陳冠瑋_房貸計算器
 {
-    public class AmortizationItem
-    {
-        [DisplayName("期數(月)")] public int Month { get; set; }
-        [DisplayName("償還本金")] public string Principal { get; set; }
-        [DisplayName("償還利息")] public string Interest { get; set; }
-        [DisplayName("本息合計")] public string Payment { get; set; }
-        [DisplayName("剩餘本金")] public string Balance { get; set; }
-    }
-
     public partial class Form1 : Form
     {
         // Interop for form dragging
@@ -3180,6 +3171,15 @@ namespace _1113354_陳冠瑋_房貸計算器
                 string zoomText = _chartZoomMonths == 0 ? "全期間" : ("最近 " + _chartZoomMonths + " 期");
                 g.DrawString("藍:剩餘本金 橘虛線:本金占比 | 視窗: " + zoomText, new Font("微軟正黑體", 8F), Brushes.Gray, chartX, chartY + chartHeight + 2);
             }
+        }
+
+        public class AmortizationItem
+        {
+            [DisplayName("期數(月)")] public int Month { get; set; }
+            [DisplayName("償還本金")] public string Principal { get; set; }
+            [DisplayName("償還利息")] public string Interest { get; set; }
+            [DisplayName("本息合計")] public string Payment { get; set; }
+            [DisplayName("剩餘本金")] public string Balance { get; set; }
         }
     }
 }
