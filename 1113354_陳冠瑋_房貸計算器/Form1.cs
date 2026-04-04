@@ -371,6 +371,21 @@ namespace _1113354_陳冠瑋_房貸計算器
             gbInput.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
             gbInput.Margin = new Padding(5, 10, 5, 5);
 
+            // Create a panel with AutoScroll to wrap the table layout and prevent cut-offs
+            Panel scrollPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.Transparent
+            };
+            gbInput.Controls.Remove(tableLayoutPanelInput);
+            scrollPanel.Controls.Add(tableLayoutPanelInput);
+            gbInput.Controls.Add(scrollPanel);
+
+            tableLayoutPanelInput.Dock = DockStyle.Top;
+            tableLayoutPanelInput.AutoSize = true;
+            tableLayoutPanelInput.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+
             var flatControls = new Control[] { txtPrice, txtDownPayment, txtRate, txtGrace, cmbTerm, cmbDownPaymentType, 
                 _cmbRegion, _cmbDistrict, _cmbPresetType, _txtDistrictSearch, _numPing, _numAnnualPrepay, _numMonthlyIncome, 
                 _txtReportStudentId, _txtReportStudentName, _txtReportCourse, _txtReportSchool, _txtReportDepartment, _txtReportAdvisor };
@@ -383,18 +398,21 @@ namespace _1113354_陳冠瑋_房貸計算器
                     tb.BorderStyle = BorderStyle.FixedSingle;
                     tb.BackColor = Color.FromArgb(248, 250, 252);
                     tb.Font = new Font("Consolas", 11.5F, FontStyle.Bold);
+                    tb.Margin = new Padding(5, 8, 5, 5);
                 }
                 else if (c is ComboBox cb)
                 {
                     cb.FlatStyle = FlatStyle.Flat;
-                    cb.BackColor = Color.FromArgb(248, 250, 252);
+                    cb.BackColor = Color.FromArgb(240, 244, 248);
                     cb.Font = new Font("微軟正黑體", 10.5F, FontStyle.Bold);
+                    cb.Margin = new Padding(5, 8, 5, 5);
                 }
                 else if (c is NumericUpDown nud)
                 {
                     nud.BorderStyle = BorderStyle.FixedSingle;
                     nud.BackColor = Color.FromArgb(248, 250, 252);
                     nud.Font = new Font("Consolas", 10.5F, FontStyle.Bold);
+                    nud.Margin = new Padding(5, 8, 5, 5);
                 }
             }
 
@@ -481,6 +499,46 @@ namespace _1113354_陳冠瑋_房貸計算器
                          }
                     }
                 }
+            }
+
+            // Create a combo box shortcut for typical rates to help user
+            var cmbQuickRate = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 90,
+                Font = new Font("微軟正黑體", 9F, FontStyle.Bold),
+                Margin = new Padding(0, 8, 5, 5),
+                BackColor = Color.FromArgb(240, 244, 248),
+                FlatStyle = FlatStyle.Flat
+            };
+            cmbQuickRate.Items.AddRange(new string[] { "常見利率", "新青安 1.775", "公教族 2.06", "首購族 2.15", "理財型 2.50" });
+            cmbQuickRate.SelectedIndex = 0;
+            cmbQuickRate.SelectedIndexChanged += (s, e) => {
+                if (cmbQuickRate.SelectedIndex == 1) txtRate.Text = "1.775";
+                else if (cmbQuickRate.SelectedIndex == 2) txtRate.Text = "2.06";
+                else if (cmbQuickRate.SelectedIndex == 3) txtRate.Text = "2.15";
+                else if (cmbQuickRate.SelectedIndex == 4) txtRate.Text = "2.5";
+            };
+
+            // Enhance Rate Row with this combo box
+            var pnlRate = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Margin = new Padding(0)
+            };
+            TableLayoutPanel tlpRate = txtRate.Parent as TableLayoutPanel;
+            if (tlpRate != null)
+            {
+                var pos = tlpRate.GetPositionFromControl(txtRate);
+                tlpRate.Controls.Remove(txtRate);
+                pnlRate.Controls.Add(cmbQuickRate);
+                txtRate.Width = 80;
+                pnlRate.Controls.Add(txtRate);
+                var lblPercent = new Label { Text = "%", AutoSize = true, Margin = new Padding(0, 10, 0, 0), Font = new Font("微軟正黑體", 10F) };
+                pnlRate.Controls.Add(lblPercent);
+                tlpRate.Controls.Add(pnlRate, pos.Column, pos.Row);
             }
 
             btnCalc.Font = new Font("微軟正黑體", 14F, FontStyle.Bold);
