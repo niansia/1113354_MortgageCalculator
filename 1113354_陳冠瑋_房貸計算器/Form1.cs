@@ -3243,13 +3243,16 @@ namespace _1113354_陳冠瑋_房貸計算器
             var sorted = impacts.OrderByDescending(x => x.Item2).Take(4).ToList();
             double maxImpact = Math.Max(1, sorted.Max(x => x.Item2));
 
-            g.DrawString("Tornado", new Font("微軟正黑體", 8F, FontStyle.Bold), Brushes.DimGray, rect.X, rect.Y - 12);
+            // 往下放，避免和上方圖說文字重疊
+            int titleY = rect.Y + 2;
+            g.DrawString("Tornado", new Font("微軟正黑體", 8F, FontStyle.Bold), Brushes.DimGray, rect.X, titleY);
 
-            int rowH = Math.Max(14, rect.Height / 4);
+            int startY = rect.Y + 16;
+            int rowH = Math.Max(12, (rect.Height - 18) / 4);
             for (int i = 0; i < sorted.Count; i++)
             {
                 var item = sorted[i];
-                int y = rect.Y + i * rowH;
+                int y = startY + i * rowH;
                 int barW = (int)((item.Item2 / maxImpact) * (rect.Width - 58));
                 Color c = i == 0 ? Color.FromArgb(231, 76, 60) : Color.FromArgb(52, 152, 219);
                 using (SolidBrush b = new SolidBrush(Color.FromArgb(180, c)))
