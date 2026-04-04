@@ -2946,14 +2946,22 @@ namespace _1113354_陳冠瑋_房貸計算器
                     + "\n\n"
                     + BuildAnalysisMethodSection()
                     + "\n"
-                    + BuildRewardLearningSection(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal);
+                    + BuildRewardLearningSection(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal)
+                    + "\n"
+                    + BuildTornadoSensitivitySection(price, downPaymentAmount, termYears, graceYears, annualRate)
+                    + "\n"
+                    + BuildExplainabilityCard(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal);
             }
 
             return BuildLocalAiReport(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal)
                 + "\n"
                 + BuildAnalysisMethodSection()
                 + "\n"
-                + BuildRewardLearningSection(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal);
+                + BuildRewardLearningSection(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal)
+                + "\n"
+                + BuildTornadoSensitivitySection(price, downPaymentAmount, termYears, graceYears, annualRate)
+                + "\n"
+                + BuildExplainabilityCard(price, downPaymentAmount, termYears, graceYears, annualRate, monthlyPaymentNormal);
         }
 
         private void EnsurePythonScript(string scriptPath)
@@ -3110,6 +3118,103 @@ namespace _1113354_陳冠瑋_房貸計算器
             sb.AppendLine("- 最佳策略預估：" + best.Item1);
             sb.AppendLine("- 建議：先執行最佳策略，再每季重新試算並更新策略分數。\n");
             sb.AppendLine(string.Format("- 預估舒適月收入門檻：NT$ {0:N0}", monthlyPaymentNormal * 3));
+            return sb.ToString();
+        }
+
+        private double EstimateMonthlyPaymentSimple(double price, double downPaymentAmount, int termYears, double annualRate)
+        {
+            double loan = Math.Max(0, price - downPaymentAmount);
+            int months = Math.Max(1, termYears * 12);
+            double r = (annualRate / 100.0) / 12.0;
+            if (loan <= 0) return 0;
+            if (r <= 0) return loan / months;
+            return loan * r * Math.Pow(1 + r, months) / (Math.Pow(1 + r, months) - 1);
+        }
+
+        private string BuildTornadoSensitivitySection(double price, double downPaymentAmount, int termYears, int graceYears, double annualRate)
+        {
+            double baseMonthly = EstimateMonthlyPaymentSimple(price, downPaymentAmount, termYears, annualRate);
+            if (baseMonthly <= 0) return "【敏感度分析】\n- 無足夠資料。";
+
+            var impacts = new List<Tuple<string, double>>();
+
+            double rateUpMonthly = EstimateMonthlyPaymentSimple(price, downPaymentAmount, termYears, annualRate + 0.5);
+            impacts.Add(Tuple.Create("年利率 +0.5%", Math.Abs(rateUpMonthly - baseMonthly)));
+
+            int termPlus = Math.Min(50, termYears + 5);
+            double termPlusMonthly = EstimateMonthlyPaymentSimple(price, downPaymentAmount, termPlus, annualRate);
+            impacts.Add(Tuple.Create("年限 +5 年", Math.Abs(termPlusMonthly - baseMonthly)));
+
+            double downPlus = Math.Min(price * 0.8, downPaymentAmount + (price * 0.05));
+            double downPlusMonthly = EstimateMonthlyPaymentSimple(price, downPlus, termYears, annualRate);
+            impacts.Add(Tuple.Create("自備款 +5% 房價", Math.Abs(downPlusMonthly - baseMonthly)));
+
+            // 寬限期影響用「寬限期後月付金跳升風險」近似成衝擊值
+            double graceShock = baseMonthly * Math.Max(0, graceYears + 1) * 0.035;
+            impacts.Add(Tuple.Create("寬限期 +1 年(風險衝擊)", graceShock));
+
+            var sorted = impacts.OrderByDescending(x => x.Item2).ToList();
+            double maxImpact = sorted.Max(x => x.Item2);
+
+            var sb = new StringBuilder();
+            sb.AppendLine("【敏感度 Tornado 排序（影響力由高到低）】");
+            foreach (var item in sorted)
+            {
+                int bars = maxImpact <= 0 ? 1 : Math.Max(1, (int)Math.Round((item.Item2 / maxImpact) * 12));
+                sb.AppendLine(string.Format("- {0,-18} | {1} NT$ {2:N0}", item.Item1, new string('■', bars), item.Item2));
+            }
+            sb.AppendLine("- 解讀：影響最高的變數，代表最值得優先控制的風險槓桿。\n");
+            return sb.ToString();
+        }
+
+        private string BuildExplainabilityCard(double price, double downPaymentAmount, int termYears, int graceYears, double annualRate, double monthlyPaymentNormal)
+        {
+            double loan = Math.Max(0, price - downPaymentAmount);
+            double ltv = price <= 0 ? 0 : (loan / price) * 100.0;
+            double monthlyIncome = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
+            double dti = monthlyIncome <= 0 ? 0 : monthlyPaymentNormal / monthlyIncome;
+
+            var triggers = new List<string>();
+            var actions = new List<string>();
+
+            if (ltv >= 80)
+            {
+                triggers.Add(string.Format("LTV 偏高 ({0:F1}%)", ltv));
+                actions.Add("提高自備款或降低總價，優先壓低槓桿比率");
+            }
+            if (annualRate >= 2.5)
+            {
+                triggers.Add(string.Format("利率偏高 ({0:F2}%)", annualRate));
+                actions.Add("比較轉貸方案，或搭配提前還款降低總利息");
+            }
+            if (graceYears > 0)
+            {
+                triggers.Add(string.Format("存在寬限期 ({0} 年)", graceYears));
+                actions.Add("預先建立寬限期後的現金流緩衝，避免月付跳升壓力");
+            }
+            if (termYears >= 35)
+            {
+                triggers.Add(string.Format("年限偏長 ({0} 年)", termYears));
+                actions.Add("評估縮短年限或部分提前還款，換取總利息下降");
+            }
+            if (monthlyIncome > 0 && dti > 0.4)
+            {
+                triggers.Add(string.Format("DTI 偏高 ({0:P0})", dti));
+                actions.Add("月付占比過高，建議把 DTI 控制在 33%~40% 內");
+            }
+
+            if (triggers.Count == 0)
+            {
+                triggers.Add("整體結構落在相對穩健區間");
+                actions.Add("維持現行策略，並每季重新試算一次");
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine("【Explainability Card：建議來源可解釋】");
+            sb.AppendLine("- 主要觸發因子：");
+            foreach (var t in triggers.Take(3)) sb.AppendLine("  • " + t);
+            sb.AppendLine("- 對應建議：");
+            foreach (var a in actions.Take(3)) sb.AppendLine("  • " + a);
             return sb.ToString();
         }
 
