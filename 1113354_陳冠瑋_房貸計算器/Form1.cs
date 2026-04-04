@@ -52,6 +52,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private Button _btnCopySummary;
         private Button _btnExportPdf;
         private Button _btnAdvancedForm;
+        private Button _btnRentVsBuy;
         private Button _btnMonteCarlo;
         private Button _btnInputMode;
         private Button _btnAnimStrength;
@@ -952,6 +953,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             _pnlToolbar.BringToFront();
 
             _btnAdvancedForm = CreateToolbarButton("🧠 理論分析", (s, e) => ShowAdvancedMetrics());
+            _btnRentVsBuy = CreateToolbarButton("⚖️ 租買模型", (s, e) => ShowRentVsBuy());
             _btnStressTest = CreateToolbarButton("📉 利率壓測", (s, e) => RunStressTest());
             _btnMonteCarlo = CreateToolbarButton("🎲 隨機壓測", (s, e) => RunMonteCarloStressTest());
             _btnCopySummary = CreateToolbarButton("📋 複製摘要", (s, e) => CopySummaryToClipboard());
@@ -989,6 +991,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             var split2 = new Label { Width = 1, Height = 28, BackColor = Color.LightGray, Margin = new Padding(10, 2, 10, 2) };
 
             _pnlToolbar.Controls.Add(_btnAdvancedForm);
+            _pnlToolbar.Controls.Add(_btnRentVsBuy);
             _pnlToolbar.Controls.Add(_btnStressTest);
             _pnlToolbar.Controls.Add(_btnMonteCarlo);
             _pnlToolbar.Controls.Add(split1);
@@ -1122,6 +1125,32 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
 
             using (var dlg = new AdvancedMetricsForm(totalLoan, downPaymentAmount, monthlyPaymentNormal, termYears * 12, annualRate))
+            {
+                dlg.ShowDialog(this);
+            }
+        }
+
+        private void ShowRentVsBuy()
+        {
+            if (totalLoan <= 0)
+            {
+                MessageBox.Show("請先完成試算，再開啟租買模型。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            double price = GetDouble(txtPrice.Text);
+            double downPaymentAmount = price - totalLoan;
+            double annualRate = GetDouble(txtRate.Text);
+            int termYears;
+            if (!int.TryParse(cmbTerm.Text, out termYears)) termYears = 20;
+
+            double monthlyPaymentNormal = GetDouble(lblResultMonthly.Text);
+            if (monthlyPaymentNormal <= 0 && _schedule.Count > 0)
+            {
+               monthlyPaymentNormal = GetDouble(_schedule[_schedule.Count - 1].Payment); 
+            }
+
+            using (var dlg = new RentVsBuyForm(price, downPaymentAmount, monthlyPaymentNormal, termYears, annualRate))
             {
                 dlg.ShowDialog(this);
             }
