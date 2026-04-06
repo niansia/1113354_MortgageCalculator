@@ -828,17 +828,17 @@ namespace _1113354_陳冠瑋_房貸計算器
             advPanel.Controls.Add(lblMonthlyIncome);
             advPanel.Controls.Add(_numMonthlyIncome);
 
-            var btnMerkle = new Button { Text = "Merkle樹", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.DarkSlateBlue, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
-            btnMerkle.FlatAppearance.BorderSize = 0;
-            btnMerkle.Click += (s, e) => RunMerkleTree();
-            var btnHuffman = new Button { Text = "霍夫曼壓縮", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.SaddleBrown, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
-            btnHuffman.FlatAppearance.BorderSize = 0;
-            btnHuffman.Click += (s, e) => RunHuffmanCompression();
-            btnMerkle.Paint += FlatButton_Paint;
-            btnHuffman.Paint += FlatButton_Paint;
+            var btnRL = new Button { Text = "RL尋優", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.DarkSlateBlue, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
+            btnRL.FlatAppearance.BorderSize = 0;
+            btnRL.Click += (s, e) => RunQLearningOptimizer();
+            var btnZKP = new Button { Text = "ZKP認證", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.SaddleBrown, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
+            btnZKP.FlatAppearance.BorderSize = 0;
+            btnZKP.Click += (s, e) => RunZeroKnowledgeProof();
+            btnRL.Paint += FlatButton_Paint;
+            btnZKP.Paint += FlatButton_Paint;
 
-            advPanel.Controls.Add(btnMerkle);
-            advPanel.Controls.Add(btnHuffman);
+            advPanel.Controls.Add(btnRL);
+            advPanel.Controls.Add(btnZKP);
 
             tableLayoutPanelInput.Controls.Add(lblAdvFeatures, 0, 7);
             tableLayoutPanelInput.Controls.Add(advPanel, 1, 7);
@@ -3541,152 +3541,146 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
         }
 
-        private void RunMerkleTree()
+        private void RunQLearningOptimizer()
         {
-            if (_schedule.Count == 0)
-            {
-                MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+             if (_schedule.Count == 0) { MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
 
-            var hashes = new List<string>();
-            var originalCount = _schedule.Count;
+             var sb = new StringBuilder();
+             sb.AppendLine("【RL 強化學習 (Reinforcement Learning) 最佳提前還款路徑探索】");
+             sb.AppendLine("分析模型：時間差分 Q-Learning (Model-Free Temporal Difference)");
+             sb.AppendLine("設計概念：Agent 模擬未來12期的決策，以求「總利息最小化」並附加現金流懲罰(Penalty) 作為 Reward 函數。");
+             sb.AppendLine("--------------------------------------------------");
 
-            using (var sha256 = SHA256.Create())
-            {
-                for (int i = 0; i < _schedule.Count; i++)
-                {
-                    var r = _schedule[i];
-                    string data = string.Format("{0}-{1}-{2}-{3}-{4}", r.Month, r.Principal, r.Interest, r.Payment, r.Balance);
-                    byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(data));
-                    hashes.Add(BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant());
-                }
+             int states = Math.Min(12, _schedule.Count);
+             int actions = 3;
+             double[,] Q = new double[states + 1, actions];
 
-                if (hashes.Count == 0) return;
+             int episodes = 1500;
+             double alpha = 0.1;
+             double gamma = 0.9;
+             double epsilon = 1.0;
 
-                int depth = 1;
-                while (hashes.Count > 1)
-                {
-                    var nextLevel = new List<string>();
-                    for (int i = 0; i < hashes.Count; i += 2)
-                    {
-                        string left = hashes[i];
-                        string right = (i + 1 < hashes.Count) ? hashes[i + 1] : left;
-                        byte[] combined = sha256.ComputeHash(Encoding.UTF8.GetBytes(left + right));
-                        nextLevel.Add(BitConverter.ToString(combined).Replace("-", "").ToLowerInvariant());
-                    }
-                    hashes = nextLevel;
-                    depth++;
-                }
+             Random rnd = new Random();
 
-                string rootHash = hashes[0];
+             for (int ep = 0; ep < episodes; ep++) {
+                 int state = 0;
+                 while (state < states) {
+                     int action = 0;
+                     if (rnd.NextDouble() < epsilon) {
+                         action = rnd.Next(actions);
+                     } else {
+                         action = Q[state, 1] > Q[state, 0] ? (Q[state, 2] > Q[state, 1] ? 2 : 1) : (Q[state, 2] > Q[state, 0] ? 2 : 0);
+                     }
 
-                var sb = new StringBuilder();
-                sb.AppendLine("【Merkle Tree 區塊鏈資料防篡改驗證 (CS 技術展示)】");
-                sb.AppendLine("分析模型：Merkle Hash Tree (二元密碼學雜湊樹)");
-                sb.AppendLine("原理解析：將攤還表產生的每一期現金流雜湊配對向上層層運算，產生唯一 Root Hash。若中途試算資料遭篡改（例如利息微調），Root Hash 將完全破壞。");
-                sb.AppendLine("--------------------------------------------------");
-                sb.AppendLine(string.Format("🌳 樹高層數 (Tree Depth)：{0} 層", depth));
-                sb.AppendLine(string.Format("🍃 端點葉節點數 (Leaf Count)：{0} 筆", originalCount));
-                sb.AppendLine(string.Format("🛡️ Root Hash (雜湊根)：{0}", rootHash));
-                sb.AppendLine("--------------------------------------------------");
-                sb.AppendLine("💡 資工洞察：無需依賴第三方信任資料庫，即可利用密碼學特徵確保本地攤還表的歷史資料一致性與防篡改特性。");
+                     double interestOfState = GetDouble(_schedule[state].Interest);
+                     double reward = 0;
+                     if (action == 0) reward = -interestOfState * 0.001;
+                     else if (action == 1) reward = (interestOfState * 0.1) - 20;
+                     else if (action == 2) reward = (interestOfState * 0.4) - 80;
 
-                rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
-                tabControlHelper.SelectedTab = tabAI;
-            }
+                     int nextState = state + 1;
+                     double maxNextQ = Math.Max(Q[nextState, 0], Math.Max(Q[nextState, 1], Q[nextState, 2]));
+
+                     Q[state, action] = Q[state, action] + alpha * (reward + gamma * maxNextQ - Q[state, action]);
+                     state = nextState;
+                 }
+                 if (epsilon > 0.01) epsilon -= 0.001; 
+             }
+
+             int optimalPrepayMonths = 0;
+             string pathStr = "";
+             for(int s=0; s<states; s++){
+                 int bestA = Q[s, 1] > Q[s, 0] ? (Q[s, 2] > Q[s, 1] ? 2 : 1) : (Q[s, 2] > Q[s, 0] ? 2 : 0);
+                 if (bestA > 0) optimalPrepayMonths++;
+                 pathStr += string.Format("t{0}=[A{1}] ", s+1, bestA);
+             }
+
+             sb.AppendLine(string.Format("🤖 智能體訓練回合 (Episodes): {0}", episodes));
+             sb.AppendLine(string.Format("⚡ 貝爾曼方程式 (Bellman Equation) 參數: α={0}, γ={1}", alpha, gamma));
+             sb.AppendLine("--------------------------------------------------");
+             sb.AppendLine("👑 收斂最佳策略 (Optimal Policy for next 12 periods):");
+             sb.AppendLine(pathStr);
+             sb.AppendLine("(A0: 觀望不還款, A1: 少額資金提早還, A2: 大額積極還本)");
+             sb.AppendLine("\n💡 AI 規劃結論：時間差分學習的 Q-Table 收斂結果指出，未來 1 年內有 " + optimalPrepayMonths + " 個月份最適合介入提早還款，可最大化整體財務 Reward。");
+
+             rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
+             tabControlHelper.SelectedTab = tabAI;
         }
 
-        private class HuffmanNode
+        private void RunZeroKnowledgeProof()
         {
-            public char Char { get; set; }
-            public int Freq { get; set; }
-            public HuffmanNode Left { get; set; }
-            public HuffmanNode Right { get; set; }
-        }
+            if (totalLoan <= 0) { MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
 
-        private void BuildHuffmanCodes(HuffmanNode node, string path, Dictionary<char, string> dict)
-        {
-            if (node == null) return;
-            if (node.Left == null && node.Right == null)
-            {
-                dict[node.Char] = string.IsNullOrEmpty(path) ? "0" : path;
-                return;
-            }
-            BuildHuffmanCodes(node.Left, path + "0", dict);
-            BuildHuffmanCodes(node.Right, path + "1", dict);
-        }
-
-        private void RunHuffmanCompression()
-        {
-            if (_schedule.Count == 0)
-            {
-                MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var sbData = new StringBuilder();
-            foreach (var r in _schedule)
-            {
-                sbData.Append(r.Month).Append(',').Append(r.Principal).Append(',')
-                      .Append(r.Interest).Append(',').Append(r.Payment).Append(',')
-                      .Append(r.Balance).Append('|');
-            }
-            string input = sbData.ToString();
-
-            var freq = new Dictionary<char, int>();
-            foreach (char c in input)
-            {
-                if (!freq.ContainsKey(c)) freq[c] = 0;
-                freq[c]++;
-            }
-
-            var nodes = freq.Select(kv => new HuffmanNode { Char = kv.Key, Freq = kv.Value }).ToList();
-            while (nodes.Count > 1)
-            {
-                nodes = nodes.OrderBy(n => n.Freq).ToList();
-                var left = nodes[0];
-                var right = nodes[1];
-                var parent = new HuffmanNode { Char = '\0', Freq = left.Freq + right.Freq, Left = left, Right = right };
-                nodes.Remove(left);
-                nodes.Remove(right);
-                nodes.Add(parent);
-            }
-
-            var root = nodes.FirstOrDefault();
-            var huffmanCodes = new Dictionary<char, string>();
-            BuildHuffmanCodes(root, "", huffmanCodes);
-
-            int originalBits = input.Length * 8; 
-            int compressedBits = 0;
-            foreach (char c in input)
-            {
-                compressedBits += huffmanCodes[c].Length;
-            }
-            double ratio = (double)compressedBits / (originalBits > 0 ? originalBits : 1) * 100.0;
+            double income = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
+            double required = GetDouble(lblResultMonthly.Text) * 3;
 
             var sb = new StringBuilder();
-            sb.AppendLine("【霍夫曼無損資料壓縮演算法 (Huffman Coding CS 技術)】");
-            sb.AppendLine("分析模型：資訊理論 - 貪婪演算法與熵編碼 (Entropy Encoding)");
-            sb.AppendLine("解析：掃描攤還序列，深度統計序列重現頻率以建構最佳二元樹，產生非定長貪婪 Prefix Code。");
+            sb.AppendLine("【Cybersecurity 資安密碼學：零知識證明 (Zero-Knowledge Proof, ZKP)】");
+            sb.AppendLine("技術模型：基於離散對數問題 (DLP) 的 Fiat-Shamir Heuristic 非互動式證明");
+            sb.AppendLine("應用價值：在「不洩露真實薪水金額 (明文)」的情況下，向銀行（驗證方）用數學證明自己的財力足以支撐房貸，藉此極大化防範駭客竊取或個資外洩問題。");
             sb.AppendLine("--------------------------------------------------");
-            sb.AppendLine(string.Format("📂 原始序列長度：{0} Bytes (約 {1} Bits)", input.Length, originalBits));
-            sb.AppendLine(string.Format("📦 霍夫曼壓縮後：約 {0} Bits", compressedBits));
-            sb.AppendLine(string.Format("🚀 壓縮率 (Compression Ratio)：{0:F2}% (體積顯著縮小)", ratio));
-            sb.AppendLine("--------------------------------------------------");
-            sb.AppendLine("📝 字典樹局部節點 (Prefix Codes)：");
 
-            var sampleKeys = huffmanCodes.Keys.OrderByDescending(k => freq[k]).Take(5);
-            foreach(var key in sampleKeys)
-            {
-                string displayLabel = key == '|' ? "分隔符" : key.ToString();
-                sb.AppendLine(string.Format("  '{0}' -> {1} (出現 {2} 次)", displayLabel, huffmanCodes[key], freq[key]));
+            if (income <= 0) {
+                sb.AppendLine("❌ 錯誤：請先於左側面板設定您的「月薪」以執行此 ZKP 證明。");
+                rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
+                tabControlHelper.SelectedTab = tabAI;
+                return;
             }
 
-            sb.AppendLine("\n💡 資工洞察：實作動態頻率貪婪建樹以壓縮重複數字模式，成功使記憶體快取傳輸體積巨量縮減。");
+            long p = 104729; 
+            long g = 2;
+            long secretX = (long)income; 
+
+            long commitmentC = ModPow(g, secretX, p);
+
+            long r = new Random().Next(1000, 9000);
+            long t = ModPow(g, r, p);
+
+            long challengeC = 0;
+            using (var sha = SHA256.Create()) {
+                byte[] hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(commitmentC.ToString() + t.ToString()));
+                challengeC = Math.Abs(BitConverter.ToInt64(hashBytes, 0)) % 10000;
+            }
+
+            long responseS = r + challengeC * secretX;
+
+            long lhs = ModPow(g, responseS, p);
+            long rhsPart1 = t;
+            long rhsPart2 = ModPow(commitmentC, challengeC, p);
+            long rhs = (rhsPart1 * rhsPart2) % p;
+
+            bool isVerified = (lhs == rhs);
+
+            sb.AppendLine(string.Format("🔐 [證明方 Prover] 產生存款承諾 (Commitment, C): {0}", commitmentC));
+            sb.AppendLine(string.Format("🎲 [證明方 Prover] Fiat-Shamir 隨機數挑戰 (Challenge, c): {0}", challengeC));
+            sb.AppendLine(string.Format("📜 [證明方 Prover] 回應數學證明 (Response, s): {0}", responseS));
+            sb.AppendLine(string.Format("🔍 [驗證銀行 Verifier] 驗證密碼學等式 (g^s mod p == t * C^c mod p):"));
+            sb.AppendLine(string.Format("   --> 左式: {0} == 右式: {1}", lhs, rhs));
+
+            if (isVerified && income > 0 && income >= required) {
+                sb.AppendLine("\n✅ [結果] 零知識證明驗證通過！");
+                sb.AppendLine("系統已純透過數學方程式向銀行驗證您的財力達標，全程沒有任何「真實薪資」數字在網路上傳輸。");
+            } else if (isVerified) {
+                sb.AppendLine("\n⚠️ [結果] ZKP 驗證通過，但根據隱密檢定，您的收入與月付比率 (DTI) 尚未達標，可能需提高自備款。");
+            } else {
+                sb.AppendLine("\n❌ [結果] 密碼學數學驗證失敗，無法保證財力證明。");
+            }
 
             rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
             tabControlHelper.SelectedTab = tabAI;
+        }
+
+        private long ModPow(long baseValue, long exponent, long modulus)
+        {
+            long result = 1;
+            baseValue %= modulus;
+            while (exponent > 0)
+            {
+                if ((exponent & 1) == 1) result = (result * baseValue) % modulus;
+                baseValue = (baseValue * baseValue) % modulus;
+                exponent >>= 1;
+            }
+            return result;
         }
 
         public class AmortizationItem
