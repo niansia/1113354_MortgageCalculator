@@ -828,6 +828,18 @@ namespace _1113354_陳冠瑋_房貸計算器
             advPanel.Controls.Add(lblMonthlyIncome);
             advPanel.Controls.Add(_numMonthlyIncome);
 
+            var btnBS = new Button { Text = "BS選擇權", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.DarkSlateBlue, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
+            btnBS.FlatAppearance.BorderSize = 0;
+            btnBS.Click += (s, e) => RunBlackScholesPricing();
+            var btnMarkov = new Button { Text = "馬可夫矩陣", Width = 96, Height = 27, FlatStyle = FlatStyle.Flat, Font = new Font("微軟正黑體", 8.5F, FontStyle.Bold), BackColor = Color.SaddleBrown, ForeColor = Color.White, Cursor = Cursors.Hand, Margin = new Padding(3,4,3,3) };
+            btnMarkov.FlatAppearance.BorderSize = 0;
+            btnMarkov.Click += (s, e) => RunMarkovChainPrediction();
+            btnBS.Paint += FlatButton_Paint;
+            btnMarkov.Paint += FlatButton_Paint;
+
+            advPanel.Controls.Add(btnBS);
+            advPanel.Controls.Add(btnMarkov);
+
             tableLayoutPanelInput.Controls.Add(lblAdvFeatures, 0, 7);
             tableLayoutPanelInput.Controls.Add(advPanel, 1, 7);
 
@@ -2000,7 +2012,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             {
                 tableLayoutPanelInput.RowStyles[0].Height = _advancedInputVisible ? 100F : 0F;
                 tableLayoutPanelInput.RowStyles[6].Height = _advancedInputVisible ? 58F : 0F;
-                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 58F : 0F;
+                tableLayoutPanelInput.RowStyles[7].Height = _advancedInputVisible ? 84F : 0F;
                 tableLayoutPanelInput.RowStyles[8].Height = _advancedInputVisible ? 94F : 0F;
             }
 
@@ -3527,6 +3539,115 @@ namespace _1113354_陳冠瑋_房貸計算器
                 string zoomText = _chartZoomMonths == 0 ? "全期間" : ("最近 " + _chartZoomMonths + " 期");
                 g.DrawString("藍:剩餘本金 橘虛線:本金占比 | 視窗: " + zoomText, new Font("微軟正黑體", 8F), Brushes.Gray, chartX, chartY + chartHeight + 2);
             }
+        }
+
+        private void RunBlackScholesPricing()
+        {
+            if (totalLoan <= 0)
+            {
+                MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            double S = totalLoan; 
+            double K = totalLoan; 
+            double T = GetDouble(cmbTerm.Text); 
+            if (T <= 0) T = 20;
+            double r = 0.015; 
+            double sigma = 0.20; 
+
+            double d1 = (Math.Log(S / K) + (r + (sigma * sigma) / 2.0) * T) / (sigma * Math.Sqrt(T));
+            double d2 = d1 - sigma * Math.Sqrt(T);
+
+            double callPrice = S * CND(d1) - K * Math.Exp(-r * T) * CND(d2);
+
+            var sb = new StringBuilder();
+            sb.AppendLine("【Black-Scholes 實質選擇權定價 (Real Options Analysis)】");
+            sb.AppendLine("分析模型：Black-Scholes-Merton (BSM) 歐式買權定價");
+            sb.AppendLine("應用場景：借款人持有「隨時可結清房貸」之權利，在財工上視為買權(Call Option)。");
+            sb.AppendLine(string.Format("標的物價值 (S): NT$ {0:N0}", S));
+            sb.AppendLine(string.Format("履約價 (K): NT$ {0:N0}", K));
+            sb.AppendLine(string.Format("選擇權期限 (T): {0} 年", T));
+            sb.AppendLine(string.Format("無風險利率 (r): {0:P1}", r));
+            sb.AppendLine(string.Format("利率波動度 (σ): {0:P0}", sigma));
+            sb.AppendLine("--------------------------------------------------");
+            sb.AppendLine(string.Format("d1 = {0:F4}, d2 = {1:F4}", d1, d2));
+            sb.AppendLine(string.Format("✨ 提前還款選擇權 理論價值 (Call Price): NT$ {0:N0}", callPrice));
+            sb.AppendLine("💡 財工洞察：此價值代表銀行免費送給您的「選擇權」價值。當市場利率大跌時，此選擇權真實價值將暴增！");
+
+            rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
+            tabControlHelper.SelectedTab = tabAI;
+        }
+
+        private double CND(double x)
+        {
+            double L = Math.Abs(x);
+            double K = 1.0 / (1.0 + 0.2316419 * L);
+            double w = 1.0 - 1.0 / Math.Sqrt(2.0 * Math.PI) * Math.Exp(-L * L / 2.0) * (0.31938153 * K - 0.356563782 * K * K + 1.781477937 * Math.Pow(K, 3) - 1.821255978 * Math.Pow(K, 4) + 1.330274429 * Math.Pow(K, 5));
+            return x < 0 ? 1.0 - w : w;
+        }
+
+        private void RunMarkovChainPrediction()
+        {
+            if (totalLoan <= 0)
+            {
+                MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int years = (int)GetDouble(cmbTerm.Text);
+            if (years <= 0) years = 20;
+
+            double monthlyIncome = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
+            double currentMonthly = GetDouble(lblResultMonthly.Text);
+            double dti = monthlyIncome > 0 ? currentMonthly / monthlyIncome : 0.33; 
+
+            double p_Normal_Delinquent = Math.Max(0.01, Math.Min(0.20, 0.02 + (dti - 0.3) * 0.15));
+            double p_Normal_PaidOff = 0.05; 
+            double p_Normal_Normal = 1.0 - p_Normal_Delinquent - p_Normal_PaidOff;
+
+            double p_Delinq_Normal = 0.40; 
+            double p_Delinq_Default = 0.30;
+            double p_Delinq_Delinq = 1.0 - p_Delinq_Normal - p_Delinq_Default;
+
+            double[,] P = new double[4,4];
+            P[0,0] = p_Normal_Normal; P[0,1] = p_Normal_Delinquent; P[0,2] = 0;              P[0,3] = p_Normal_PaidOff;
+            P[1,0] = p_Delinq_Normal; P[1,1] = p_Delinq_Delinq;     P[1,2] = p_Delinq_Default;P[1,3] = 0;
+            P[2,0] = 0;               P[2,1] = 0;                   P[2,2] = 1.0;             P[2,3] = 0; 
+            P[3,0] = 0;               P[3,1] = 0;                   P[3,2] = 0;               P[3,3] = 1.0; 
+
+            double[] state = { 1.0, 0.0, 0.0, 0.0 };
+
+            for (int t = 0; t < years; t++)
+            {
+                double[] nextState = new double[4];
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        nextState[j] += state[i] * P[i,j];
+                state = nextState;
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine("【Markov Chain 馬可夫信用狀態轉移矩陣預測】");
+            sb.AppendLine("分析模型：隨機過程 - 馬可夫轉移矩陣 (Markov Transition Matrix)");
+            sb.AppendLine("解析：模擬未來 N 年間，房貸戶在正常、遲繳、違約矩陣間的機率游走。");
+            sb.AppendLine(string.Format("依據您的收支比 (DTI = {0:P1})，動態生成轉移矩陣 P：", dti));
+            sb.AppendLine(string.Format("初始違約轉移率 P(常->遲) = {0:P2}", p_Normal_Delinquent));
+            sb.AppendLine(string.Format("矩陣自我乘冪推演時間 (T)：{0} 年", years));
+            sb.AppendLine("--------------------------------------------------");
+            sb.AppendLine("🎯 期末狀態機率分佈 (Terminal Status Probabilities)：");
+            sb.AppendLine(string.Format("  - 維持正常繳款 (Healthy): {0:P2}", state[0]));
+            sb.AppendLine(string.Format("  - 處於遲繳狀態 (Delinquent): {0:P2}", state[1]));
+            sb.AppendLine(string.Format("  - ❌ 進入壞帳違約 (Default): {0:P2}", state[2]));
+            sb.AppendLine(string.Format("  - 💰 提早結清貸款 (Paid Off): {0:P2}", state[3]));
+
+            if (state[2] > 0.15) 
+                sb.AppendLine("\n💡 財工警告：模型顯示長期違約風險偏高，建議重組負債結構以降低月付壓力。");
+            else 
+                sb.AppendLine("\n💡 財工洞察：長期收支比具備韌性，系統預期可順遂走完全部還款週期。");
+
+            rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
+            tabControlHelper.SelectedTab = tabAI;
         }
 
         public class AmortizationItem
