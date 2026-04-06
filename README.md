@@ -18,8 +18,8 @@
 12. 理論投資分析（NPV淨現值 / 機會成本評估）
 13. 現代租買決策數學模型（DCF現金流貼現資產交叉點）
 14. 不動產投報率深度運算（內部報酬率 IRR、資本化率 Cap Rate）
-15. **Black-Scholes (BSM) 實質選擇權定價（評估提前結清之買權價值）**
-16. **馬可夫鏈 (Markov Chain) 信用狀態轉移違約機率預測**
+15. **Merkle Hash Tree 區塊鏈資料完整性防篡改技術**
+16. **霍夫曼無損資料壓縮演算法 (Huffman Coding) 快取體積最佳化**
 17. Reward-based 強度學習風險評分建議引擎
 18. Tornado 單因子風險敏感度圖像分析（Tornado Chart）
 19. Explainability Card 財務專家可解釋建議卡
