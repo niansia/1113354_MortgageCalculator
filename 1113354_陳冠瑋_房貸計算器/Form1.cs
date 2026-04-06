@@ -55,6 +55,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private Button _btnRentVsBuy;
         private Button _btnInvestAnalysis;
         private Button _btnMonteCarlo;
+        private Button _btnAssetRisk;
         private Button _btnInputMode;
         private Button _btnAnimStrength;
         private Label _btnMaximize;
@@ -1092,6 +1093,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             _btnInvestAnalysis = CreateToolbarButton("🏢 投報分析", "商辦投資分析模型，包含 IRR 內部報酬率與現金回報率", (s, e) => ShowInvestmentAnalysis());
             _btnStressTest = CreateToolbarButton("📉 利率壓測", "壓力測試利率上升 1%~2% 時您的月負擔能力", (s, e) => RunStressTest());
             _btnMonteCarlo = CreateToolbarButton("🎲 隨機壓測", "蒙地卡羅隨機推演未來利率波動的極端情境", (s, e) => RunMonteCarloStressTest());
+            _btnAssetRisk = CreateToolbarButton("🌊 資產 VaR", "金融工程：GBM幾何布朗運動估測房產跌破貸款餘額風險", (s, e) => RunAssetRiskSimulation());
             _btnCopySummary = CreateToolbarButton("📋 複製摘要", "將右側總結數據直接複製為文字，方便貼到 LINE 或文件", (s, e) => CopySummaryToClipboard());
             _btnExportPdf = CreateToolbarButton("💾 匯出 PDF", "匯出一份具有專業圖表的 PDF 分析報告", (s, e) => ExportPdfReport());
             _btnPdfTemplate = CreateToolbarButton("📄 版型:學術", "切換 PDF 輸出版型：商務簡報風 或 學術論文風", (s, e) => TogglePdfTemplateMode());
@@ -1131,6 +1133,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             _pnlToolbar.Controls.Add(_btnInvestAnalysis);
             _pnlToolbar.Controls.Add(_btnStressTest);
             _pnlToolbar.Controls.Add(_btnMonteCarlo);
+            _pnlToolbar.Controls.Add(_btnAssetRisk);
             _pnlToolbar.Controls.Add(split1);
             _pnlToolbar.Controls.Add(_btnCopySummary);
             _pnlToolbar.Controls.Add(_btnExportPdf);
@@ -1904,7 +1907,8 @@ namespace _1113354_陳冠瑋_房貸計算器
             double avg = pays.Average();
 
             var sb = new StringBuilder();
-            sb.AppendLine("【蒙地卡羅隨機壓測】");
+            sb.AppendLine("【CIR 均值回歸模型 (Monte Carlo 利率壓測)】");
+            sb.AppendLine("分析模型：Cox-Ingersoll-Ross (CIR) 隨機微分方程理論基礎");
             sb.AppendLine("樣本數: " + pays.Count + "（利率基準 " + baseRate.ToString("0.00") + "%，σ=" + sigma.ToString("0.00") + "）");
             sb.AppendLine("平均月付: NT$ " + avg.ToString("N0"));
             sb.AppendLine("P10(月付較低): NT$ " + p10.ToString("N0"));
@@ -1921,6 +1925,64 @@ namespace _1113354_陳冠瑋_房貸計算器
             double u1 = 1.0 - random.NextDouble();
             double u2 = 1.0 - random.NextDouble();
             return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+        }
+
+        private void RunAssetRiskSimulation()
+        {
+            if (totalLoan <= 0 || _schedule.Count == 0)
+            {
+                MessageBox.Show("請先完成一次試算。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            double S0 = GetDouble(txtPrice.Text);
+            int months = _schedule.Count;
+            int simulations = 1000;
+            double mu = 0.015; 
+            double sigma = 0.08; 
+            double dt = 1.0 / 12.0;
+
+            int underwaterCount = 0;
+            var terminalValues = new List<double>(simulations);
+            var rnd = new Random();
+
+            for (int i = 0; i < simulations; i++)
+            {
+                double S = S0;
+                bool isUnderwater = false;
+
+                for (int t = 0; t < months; t++)
+                {
+                    double z = NextGaussian(rnd);
+                    S = S * Math.Exp((mu - 0.5 * sigma * sigma) * dt + sigma * Math.Sqrt(dt) * z);
+
+                    if (S < GetDouble(_schedule[t].Balance)) isUnderwater = true;
+                }
+                if (isUnderwater) underwaterCount++;
+                terminalValues.Add(S);
+            }
+
+            terminalValues.Sort();
+            double var95 = terminalValues[(int)(simulations * 0.05)]; 
+            double expectedValue = terminalValues.Average();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("【GBM 幾何布朗運動：資產水下風險 (Negative Equity) 評估】");
+            sb.AppendLine("分析模型：隨機微分方程 (SDE) - Geometric Brownian Motion");
+            sb.AppendLine(string.Format("參數假設：長期年化增值期望 μ={0:P1}, 房市波動率 σ={1:P1}", mu, sigma));
+            sb.AppendLine(string.Format("蒙地卡羅路徑：{0} 條獨立資產價格走勢 (Paths) 推演", simulations));
+            sb.AppendLine("--------------------------------------------------");
+            sb.AppendLine(string.Format("📉 溺水機率 (房產價值 < 剩餘房貸餘額之發生機率)：{0:P1}", (double)underwaterCount / simulations));
+            sb.AppendLine(string.Format("📈 期末房產預期價值 (E[S_T])：NT$ {0:N0}", expectedValue));
+            sb.AppendLine(string.Format("⚠️ 95% 在險價值 (VaR, 發生5%極端回檔時的期末淨值)：NT$ {0:N0}", var95));
+            sb.AppendLine("--------------------------------------------------");
+            if ((double)underwaterCount / simulations > 0.08)
+                sb.AppendLine("💡 財工洞察：資產跌破負債之風險偏高，建議提高初期自備款或配置避險資金。");
+            else
+                sb.AppendLine("💡 財工洞察：資產淨值防禦力良好，具備承受常態性市場價格回檔之緩衝空間。");
+
+            rtbAI.Text = sb.ToString() + "\n\n" + rtbAI.Text;
+            tabControlHelper.SelectedTab = tabAI;
         }
 
         private void ToggleInputMode()
