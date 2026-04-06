@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -127,7 +127,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             this.Controls.Add(dgvMatrix);
             dgvMatrix.BringToFront();
             
-            // Custom drawing for heatmap effect
+            
             dgvMatrix.CellFormatting += DgvMatrix_CellFormatting;
         }
 
@@ -138,7 +138,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             double inflationRate = (double)numInflation.Value / 100.0;
             double investRate = (double)numInvestmentReturn.Value / 100.0;
 
-            // 1. 淨現值 (NPV) 計算: 未來支付的每一筆錢折算成現在的購買力
+            
             double monthlyDiscount = inflationRate / 12.0;
             double npvOfPayments = 0;
             for (int i = 1; i <= _totalMonths; i++)
@@ -147,10 +147,10 @@ namespace _1113354_陳冠瑋_房貸計算器
             }
             double realCost = _downPayment + npvOfPayments;
 
-            // 2. 機會成本 (Opportunity Cost): 如果買房的錢拿去投資
-            // 頭期款複利
+            
+            
             double fvOfDownPayment = _downPayment * Math.Pow(1 + investRate, _totalMonths / 12.0);
-            // 每年月付金(粗略用年付金算複利終值)
+            
             double annualPayment = _monthlyPayment * 12;
             double fvOfMonthlyPayments = 0;
             for (int i = 1; i <= _totalMonths / 12; i++)
@@ -206,7 +206,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 e.Value = $"NT$ {val:N0}";
                 e.FormattingApplied = true;
 
-                // Heatmap logic (red = high payment, green = low payment)
+                
                 double min = double.MaxValue;
                 double max = double.MinValue;
                 foreach (DataGridViewRow row in dgvMatrix.Rows)
@@ -233,7 +233,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                         double ratio = (v - min) / (max - min);
                         int red = (int)(255 * ratio);
                         int green = (int)(255 * (1 - ratio));
-                        e.CellStyle.BackColor = Color.FromArgb(50, red, green, 0); // Light heatmap tint
+                        e.CellStyle.BackColor = Color.FromArgb(50, red, green, 0); 
                     }
                 }
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -16,7 +16,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private double _loanRate;
         private int _totalMonths;
 
-        // Input controls
+        
         private NumericUpDown numGrossRent;
         private NumericUpDown numVacancyRate;
         private NumericUpDown numOpexRate;
@@ -100,8 +100,8 @@ namespace _1113354_陳冠瑋_房貸計算器
             pnlLeft.Controls.Add(flowLeft);
             flowLeft.BringToFront();
 
-            // Default defaults
-            decimal defRent = (decimal)Math.Round((_propertyPrice * 0.035) / 12.0 / 100) * 100; // 3.5% basic yield
+            
+            decimal defRent = (decimal)Math.Round((_propertyPrice * 0.035) / 12.0 / 100) * 100; 
 
             numGrossRent = AddInput(flowLeft, "預估營運月租金($)", defRent, 0, 10000000, 1000, "物件滿租狀態下的標準月租金。\n它是計算 NOI 營運淨利的核心基礎。");
             numVacancyRate = AddInput(flowLeft, "預估空置率(%)", 5.0M, 0, 50, 0.5M, "一年中平均沒有租客的月份比例，\n商辦一般抓 5%~10%。");
@@ -227,27 +227,27 @@ namespace _1113354_陳冠瑋_房貸計算器
 
         private void CalculateMetrics()
         {
-            double grossRent = (double)numGrossRent.Value * 12; // GI
+            double grossRent = (double)numGrossRent.Value * 12; 
             double vacancy = (double)numVacancyRate.Value / 100.0;
             double opexRate = (double)numOpexRate.Value / 100.0;
             double appRate = (double)numPropApp.Value / 100.0;
             double sellCost = (double)numSellingCost.Value / 100.0;
             int hYears = (int)numHoldingYears.Value;
 
-            double egi = grossRent * (1 - vacancy); // Effective Gross Income
-            double opex = egi * opexRate; // Operating Expenses
-            double noi = egi - opex; // Net Operating Income (首年NOI)
+            double egi = grossRent * (1 - vacancy); 
+            double opex = egi * opexRate; 
+            double noi = egi - opex; 
 
             double capRate = _propertyPrice > 0 ? (noi / _propertyPrice) : 0;
             
             double annualDebtService = _monthlyPayment * 12;
-            double preTaxCashFlow = noi - annualDebtService; // PTCF
+            double preTaxCashFlow = noi - annualDebtService; 
             
             double cashOnCash = _downPayment > 0 ? (preTaxCashFlow / _downPayment) : 0;
 
-            // Compute Cash Flows over Holding Period
+            
             List<double> cashFlows = new List<double>();
-            cashFlows.Add(-_downPayment); // Year 0 initial equity
+            cashFlows.Add(-_downPayment); 
 
             dgvCashFlow.Rows.Clear();
             dgvCashFlow.Columns.Clear();
@@ -266,7 +266,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             {
                 currentVal *= (1 + appRate);
 
-                // Assuming NOI increases with property value appreciation roughly
+                
                 double currentNoi = noi * Math.Pow(1 + appRate, y - 1);
                 
                 double annualPrin = 0;
@@ -284,7 +284,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
                 double cf = currentNoi - annualDebtService;
 
-                // If it's the last year, add sale proceeds to cashflow
+                
                 if (y == hYears)
                 {
                     double netSaleProceeds = (currentVal * (1 - sellCost)) - balance;
@@ -309,7 +309,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 $"首年淨營運收入 (NOI)      : NT$ {noi:N0} / 房產售出稅後淨值(Year {hYears}): NT$ {cashFlows.Last():N0}";
         }
 
-        // Simple Newton-Raphson method for IRR
+        
         private double ComputeIRR(double[] values, double guess = 0.1)
         {
             double irr = guess;

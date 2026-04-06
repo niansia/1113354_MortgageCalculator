@@ -78,10 +78,10 @@
             this.tabAI.SuspendLayout();
             this.SuspendLayout();
             
-            // errorProvider1
+            
             this.errorProvider1.ContainerControl = this;
             
-            // lblMainTitle
+            
             this.lblMainTitle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
             this.lblMainTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblMainTitle.Font = new System.Drawing.Font("微軟正黑體", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
@@ -93,7 +93,7 @@
             this.lblMainTitle.Text = "  🏡 個人房貸計算器";
             this.lblMainTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             
-            // btnClose / btnMinimize Control Box
+            
             this.btnClose.BackColor = System.Drawing.Color.Transparent;
             this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnClose.Font = new System.Drawing.Font("微軟正黑體", 16F, System.Drawing.FontStyle.Bold);
@@ -114,7 +114,7 @@
             this.btnMinimize.Text = "－";
             this.btnMinimize.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
-            // pnlMain
+            
             this.pnlMain.ColumnCount = 2;
             this.pnlMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.pnlMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
@@ -129,7 +129,7 @@
             this.pnlMain.Size = new System.Drawing.Size(984, 600);
             this.pnlMain.TabIndex = 1;
             
-            // gbInput
+            
             this.gbInput.Controls.Add(this.tableLayoutPanelInput);
             this.gbInput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbInput.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
@@ -142,7 +142,7 @@
             this.gbInput.TabStop = false;
             this.gbInput.Text = "⚙️ 參數設定區域";
             
-            // tableLayoutPanelInput
+            
             this.tableLayoutPanelInput.ColumnCount = 2;
             this.tableLayoutPanelInput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
             this.tableLayoutPanelInput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 65F));
@@ -173,7 +173,7 @@
             this.tableLayoutPanelInput.Size = new System.Drawing.Size(341, 502);
             this.tableLayoutPanelInput.TabIndex = 0;
             
-            // lblPrice
+            
             this.lblPrice.AutoSize = true;
             this.lblPrice.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblPrice.Location = new System.Drawing.Point(3, 0);
@@ -182,13 +182,13 @@
             this.lblPrice.Text = "房屋總價($)";
             this.lblPrice.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             
-            // txtPrice
+            
             this.txtPrice.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPrice.Location = new System.Drawing.Point(122, 11);
             this.txtPrice.Name = "txtPrice";
             this.txtPrice.Size = new System.Drawing.Size(216, 27);
             
-            // lblDownPayment
+            
             this.lblDownPayment.AutoSize = true;
             this.lblDownPayment.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblDownPayment.Location = new System.Drawing.Point(3, 50);
@@ -197,7 +197,7 @@
             this.lblDownPayment.Text = "初期自備款";
             this.lblDownPayment.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             
-            // pnlDown
+            
             this.pnlDown.Controls.Add(this.txtDownPayment);
             this.pnlDown.Controls.Add(this.cmbDownPaymentType);
             this.pnlDown.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -206,13 +206,13 @@
             this.pnlDown.Name = "pnlDown";
             this.pnlDown.Size = new System.Drawing.Size(222, 50);
             
-            // txtDownPayment
+            
             this.txtDownPayment.Location = new System.Drawing.Point(3, 11);
             this.txtDownPayment.Margin = new System.Windows.Forms.Padding(3, 11, 3, 3);
             this.txtDownPayment.Name = "txtDownPayment";
             this.txtDownPayment.Size = new System.Drawing.Size(120, 27);
             
-            // cmbDownPaymentType
+            
             this.cmbDownPaymentType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDownPaymentType.Items.AddRange(new object[] { "%", "元" });
             this.cmbDownPaymentType.Location = new System.Drawing.Point(129, 11);
@@ -220,7 +220,7 @@
             this.cmbDownPaymentType.Name = "cmbDownPaymentType";
             this.cmbDownPaymentType.Size = new System.Drawing.Size(60, 27);
             
-            // lblRate
+            
             this.lblRate.AutoSize = true;
             this.lblRate.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblRate.Location = new System.Drawing.Point(3, 100);
@@ -229,13 +229,13 @@
             this.lblRate.Text = "貸款年利率(%)";
             this.lblRate.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             
-            // txtRate
+            
             this.txtRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtRate.Location = new System.Drawing.Point(122, 111);
             this.txtRate.Name = "txtRate";
             this.txtRate.Size = new System.Drawing.Size(216, 27);
             
-            // lblTerm
+            
             this.lblTerm.AutoSize = true;
             this.lblTerm.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblTerm.Location = new System.Drawing.Point(3, 150);
@@ -244,7 +244,7 @@
             this.lblTerm.Text = "貸款年限(年)";
             this.lblTerm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             
-            // cmbTerm
+            
             this.cmbTerm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTerm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbTerm.Items.AddRange(new object[] { "10", "15", "20", "30", "40" });
@@ -252,7 +252,7 @@
             this.cmbTerm.Name = "cmbTerm";
             this.cmbTerm.Size = new System.Drawing.Size(216, 27);
             
-            // lblGrace
+            
             this.lblGrace.AutoSize = true;
             this.lblGrace.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblGrace.Location = new System.Drawing.Point(3, 200);
@@ -261,13 +261,13 @@
             this.lblGrace.Text = "使用寬限期(年)";
             this.lblGrace.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             
-            // txtGrace
+            
             this.txtGrace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtGrace.Location = new System.Drawing.Point(122, 211);
             this.txtGrace.Name = "txtGrace";
             this.txtGrace.Size = new System.Drawing.Size(216, 27);
             
-            // pnlButtons
+            
             this.pnlButtons.Controls.Add(this.btnCalc);
             this.pnlButtons.Controls.Add(this.btnReset);
             this.pnlButtons.Controls.Add(this.btnExport);
@@ -277,7 +277,7 @@
             this.pnlButtons.Name = "pnlButtons";
             this.pnlButtons.Size = new System.Drawing.Size(222, 130);
             
-            // btnCalc
+            
             this.btnCalc.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(174)))), ((int)(((byte)(96)))));
             this.btnCalc.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCalc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -291,7 +291,7 @@
             this.btnCalc.Text = "➜ 開始深度試算";
             this.btnCalc.Click += new System.EventHandler(this.btnCalc_Click);
             
-            // btnReset
+            
             this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(165)))), ((int)(((byte)(166)))));
             this.btnReset.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -305,7 +305,7 @@
             this.btnReset.Text = "清除重置";
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
 
-            // btnExport
+            
             this.btnExport.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
             this.btnExport.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -319,7 +319,7 @@
             this.btnExport.Text = "匯出 CSV";
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
 
-            // lblValidationHint
+            
             this.lblValidationHint.AutoSize = true;
             this.tableLayoutPanelInput.SetColumnSpan(this.lblValidationHint, 2);
             this.lblValidationHint.Dock = System.Windows.Forms.DockStyle.Top;
@@ -330,7 +330,7 @@
             this.lblValidationHint.TabIndex = 11;
             this.lblValidationHint.Text = "";
             
-            // tabControlHelper
+            
             this.tabControlHelper.Controls.Add(this.tabSummary);
             this.tabControlHelper.Controls.Add(this.tabAI);
             this.tabControlHelper.Controls.Add(this.tabSchedule);
@@ -341,7 +341,7 @@
             this.tabControlHelper.SelectedIndex = 0;
             this.tabControlHelper.Size = new System.Drawing.Size(561, 554);
             
-            // tabSummary
+            
             this.tabSummary.Controls.Add(this.tableLayoutPanelOutput);
             this.tabSummary.Controls.Add(this.picChart);
             this.tabSummary.Location = new System.Drawing.Point(4, 29);
@@ -351,7 +351,7 @@
             this.tabSummary.Text = "📊 全局試算結果";
             this.tabSummary.UseVisualStyleBackColor = true;
             
-            // tableLayoutPanelOutput
+            
             this.tableLayoutPanelOutput.ColumnCount = 2;
             this.tableLayoutPanelOutput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
             this.tableLayoutPanelOutput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 65F));
@@ -379,7 +379,7 @@
             this.tableLayoutPanelOutput.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
             this.tableLayoutPanelOutput.Size = new System.Drawing.Size(523, 271);
             
-            // Output Labels Template
+            
             System.Drawing.Font titleFont = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             System.Drawing.Font valueFont = new System.Drawing.Font("Consolas", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             System.Drawing.Color titleColor = System.Drawing.Color.Gray;
@@ -405,7 +405,7 @@
             this.lblResultMonthly.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblResultMonthly.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblResultMonthly.Font = new System.Drawing.Font("Consolas", 16F, System.Drawing.FontStyle.Bold);
-            this.lblResultMonthly.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(57)))), ((int)(((byte)(43))))); // Red for monthly
+            this.lblResultMonthly.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(57)))), ((int)(((byte)(43))))); 
 
             this.lblTitleFirstInt.Text = "首期衍生利息：";
             this.lblTitleFirstInt.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -436,7 +436,7 @@
             this.lblResultTotalInt.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblResultTotalInt.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblResultTotalInt.Font = valueFont;
-            this.lblResultTotalInt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(126)))), ((int)(((byte)(34))))); // Orange
+            this.lblResultTotalInt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(126)))), ((int)(((byte)(34))))); 
 
             this.lblTitleTotalRepay.Text = "終期總還款數：";
             this.lblTitleTotalRepay.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -448,14 +448,14 @@
             this.lblResultTotalRepay.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblResultTotalRepay.Font = valueFont;
             
-            // picChart
+            
             this.picChart.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.picChart.Location = new System.Drawing.Point(15, 292);
             this.picChart.Name = "picChart";
             this.picChart.Size = new System.Drawing.Size(523, 214);
             this.picChart.Paint += new System.Windows.Forms.PaintEventHandler(this.picChart_Paint);
             
-            // tabAI
+            
             this.tabAI.Controls.Add(this.rtbAI);
             this.tabAI.Location = new System.Drawing.Point(4, 29);
             this.tabAI.Name = "tabAI";
@@ -464,7 +464,7 @@
             this.tabAI.Text = "🧠 AI 財務分析報告";
             this.tabAI.UseVisualStyleBackColor = true;
             
-            // rtbAI
+            
             this.rtbAI.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbAI.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.rtbAI.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
@@ -476,7 +476,7 @@
             this.rtbAI.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.rtbAI.Text = "未執行分析...";
 
-            // tabSchedule
+            
             this.tabSchedule.Controls.Add(this.dgvSchedule);
             this.tabSchedule.Location = new System.Drawing.Point(4, 29);
             this.tabSchedule.Name = "tabSchedule";
@@ -485,15 +485,15 @@
             this.tabSchedule.Text = "📅 各期攤還報表";
             this.tabSchedule.UseVisualStyleBackColor = true;
             
-            // dgvSchedule
+            
             this.dgvSchedule.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvSchedule.Location = new System.Drawing.Point(0, 0);
             this.dgvSchedule.Name = "dgvSchedule";
-            this.dgvSchedule.RowTemplate.Height = 30; // Larger row height for readability
+            this.dgvSchedule.RowTemplate.Height = 30; 
             this.dgvSchedule.Size = new System.Drawing.Size(553, 521);
             
-            // Form1
+            
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 660);

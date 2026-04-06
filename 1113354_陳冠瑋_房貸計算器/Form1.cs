@@ -18,7 +18,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 {
     public partial class Form1 : Form
     {
-        // Interop for form dragging
+        
         [DllImport("user32.dll")] public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImport("user32.dll")] public static extern bool ReleaseCapture();
         public const int WM_NCLBUTTONDOWN = 0xA1;
@@ -75,7 +75,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private Dictionary<Label, double> _animFrom = new Dictionary<Label, double>();
         private Dictionary<Label, double> _animTo = new Dictionary<Label, double>();
         private int _currentAnimTicks = AnimTicks;
-        private int _animStrengthLevel = 2; // 2:高 1:低 0:關
+        private int _animStrengthLevel = 2; 
         private bool _advancedInputVisible = true;
         private bool _monthlyHasGrace = false;
         private double _monthlyNormalValue = 0;
@@ -288,12 +288,12 @@ namespace _1113354_陳冠瑋_房貸計算器
             txtRate.KeyPress += FloatOnly_KeyPress;
             txtGrace.KeyPress += NumberOnly_KeyPress;
 
-            // Auto-format for Price text
+            
             txtPrice.Leave += (s, e) => { if(double.TryParse(txtPrice.Text.Replace(",", ""), out double d)) txtPrice.Text = d.ToString("N0"); };
             txtPrice.Enter += (s, e) => { txtPrice.Text = txtPrice.Text.Replace(",", ""); };
 
             cmbDownPaymentType.SelectedIndexChanged += (s, e) => {
-                if(cmbDownPaymentType.SelectedIndex == 0) // %
+                if(cmbDownPaymentType.SelectedIndex == 0) 
                     txtDownPayment.Text = "20";
                 else
                     txtDownPayment.Text = (GetDouble(txtPrice.Text) * 0.2).ToString("0");
@@ -301,7 +301,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             dgvSchedule.DataSource = _bs;
             
-            // Custom button paint
+            
             btnCalc.Paint += FlatButton_Paint;
             btnReset.Paint += FlatButton_Paint;
             btnExport.Paint += FlatButton_Paint;
@@ -325,7 +325,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             LayoutTitleButtons();
             ApplyTheme("明亮");
 
-            // Tab control modern aesthetics
+            
             tabControlHelper.ItemSize = new Size(140, 36);
             tabControlHelper.SizeMode = TabSizeMode.Fixed;
             tabControlHelper.DrawMode = TabDrawMode.OwnerDrawFixed;
@@ -374,7 +374,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             gbInput.Font = new Font("微軟正黑體", 11.5F, FontStyle.Bold);
             gbInput.Margin = new Padding(5, 10, 5, 5);
 
-            // Create a panel with AutoScroll to wrap the table layout and prevent cut-offs
+            
             Panel scrollPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -505,7 +505,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 }
             }
 
-            // Create a combo box shortcut for typical rates to help user
+            
             var cmbQuickRate = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
@@ -524,7 +524,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 else if (cmbQuickRate.SelectedIndex == 4) txtRate.Text = "2.5";
             };
 
-            // Enhance Rate Row with this combo box
+            
             var pnlRate = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -566,18 +566,18 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             lblValidationHint.Padding = new Padding(5, 10, 0, 0);
 
-            // Set error provider alignment to Left so it renders inside the UI, instead of being cut off by right edge bounds
+            
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.Icon = SystemIcons.Warning;
             errorProvider1.BlinkRate = 0;
-            // Draw the error icon on the LEFT side of the input control to prevent being cut off because it's too close to the layout boundary
+            
             errorProvider1.SetIconAlignment(txtPrice, ErrorIconAlignment.MiddleLeft);
             errorProvider1.SetIconAlignment(txtDownPayment, ErrorIconAlignment.MiddleLeft);
             errorProvider1.SetIconAlignment(txtRate, ErrorIconAlignment.MiddleLeft);
             errorProvider1.SetIconAlignment(cmbTerm, ErrorIconAlignment.MiddleLeft);
             errorProvider1.SetIconAlignment(txtGrace, ErrorIconAlignment.MiddleLeft);
 
-            // Adding a small padding from the left edge so it looks nice inside the border box.
+            
             errorProvider1.SetIconPadding(txtPrice, 3);
             errorProvider1.SetIconPadding(txtDownPayment, 3);
             errorProvider1.SetIconPadding(txtRate, 3);
@@ -667,7 +667,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             _tabCompare.Controls.Add(topPanel);
             tabControlHelper.TabPages.Add(_tabCompare);
 
-            // Add custom cell formatting to style values and highlight best ones if needed
+            
             _dgvCompare.CellFormatting += (s, e) =>
             {
                 if (e.Value != null && e.RowIndex % 2 == 0) e.CellStyle.BackColor = Color.FromArgb(250, 251, 252);
@@ -683,7 +683,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 cmbTerm.Items.Add(year.ToString());
             }
 
-            // 在輸入區新增「台灣區域預設」(程式內建樣本資料)
+            
             var controls = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
             foreach (var c in controls)
             {
@@ -710,7 +710,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 WrapContents = true
             };
 
-            // (1) 重新調整寬度以減少換行太擠
+            
             _cmbRegion = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 72, Font = new Font("微軟正黑體", 9F) };
             _cmbDistrict = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 72, Font = new Font("微軟正黑體", 9F) };
             _txtDistrictSearch = new TextBox { Width = 64, Font = new Font("微軟正黑體", 9F) };
@@ -744,7 +744,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             tableLayoutPanelInput.Controls.Add(lblPreset, 0, 0);
             tableLayoutPanelInput.Controls.Add(presetPanel, 1, 0);
 
-            // 新增：提前還款模擬器（每年固定多還X元）
+            
             var controls2 = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
             foreach (var c2 in controls2)
             {
@@ -788,7 +788,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             tableLayoutPanelInput.Controls.Add(lblPrepay, 0, 6);
             tableLayoutPanelInput.Controls.Add(prepayPanel, 1, 6);
 
-            // 新增：進階設定 (新青安與月收入)
+            
             var controlsDti = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
             foreach (var c in controlsDti)
             {
@@ -830,7 +830,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             tableLayoutPanelInput.Controls.Add(lblAdvFeatures, 0, 7);
             tableLayoutPanelInput.Controls.Add(advPanel, 1, 7);
 
-            // 新增：報告封面資訊（學號/姓名/課程）
+            
             var controls3 = tableLayoutPanelInput.Controls.Cast<Control>().ToList();
             foreach (var c3 in controls3)
             {
@@ -1028,7 +1028,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
         private void EstimateByDistrictAndPing()
         {
-            double unit = ResolveUnitPriceBySelection(); // 萬/坪
+            double unit = ResolveUnitPriceBySelection(); 
             double ping = (double)_numPing.Value;
             double total = unit * ping * 10000;
 
@@ -1412,7 +1412,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             dgvSchedule.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvSchedule.EnableHeadersVisualStyles = false;
 
-            // Modernize Schedule Table styling
+            
             dgvSchedule.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvSchedule.GridColor = Color.FromArgb(235, 235, 235);
             dgvSchedule.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
@@ -1519,7 +1519,7 @@ namespace _1113354_陳冠瑋_房貸計算器
         private void InitializeDefaults()
         {
             txtPrice.Text = "15,000,000";
-            cmbDownPaymentType.SelectedIndex = 0; // %
+            cmbDownPaymentType.SelectedIndex = 0; 
             txtDownPayment.Text = "20";
             txtRate.Text = "2.15";
             cmbTerm.Text = "20";
@@ -1586,7 +1586,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             double downPaymentVal = GetDouble(txtDownPayment.Text);
             double downPaymentAmount = 0;
-            if (cmbDownPaymentType.SelectedIndex == 0) // %
+            if (cmbDownPaymentType.SelectedIndex == 0) 
             {
                 if (downPaymentVal < 0 || downPaymentVal >= 100)
                 {
@@ -1596,7 +1596,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 }
                 downPaymentAmount = price * (downPaymentVal / 100.0);
             }
-            else // 元
+            else 
             {
                 if (downPaymentVal < 0 || downPaymentVal >= price)
                 {
@@ -1658,7 +1658,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             bool isNewYouth = _chkNewYouth != null && _chkNewYouth.Checked;
             double youthRate = (1.775 / 100.0) / 12.0;
-            int youthMonths = 36; // 優惠 3 年
+            int youthMonths = 36; 
 
             double monthlyPaymentNormal = 0;
             int remainingMonths = totalMonths - graceMonths;
@@ -1669,7 +1669,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             _schedule.Clear();
 
-            // Generate scheduling in background task to show enterprise asynchronous pattern
+            
             await Task.Run(() => {
                 double tempInterest = 0;
                 double tempRepayment = 0;
@@ -2382,7 +2382,7 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             bool academicMode = _pdfTemplateMode == PdfTemplateMode.AcademicZh;
 
-            // 封面
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2404,7 +2404,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 目錄
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2422,7 +2422,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 第1章：摘要
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2446,7 +2446,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 第2章：方法、結果、結論、建議
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2470,7 +2470,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 圖表頁：主圖
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2488,7 +2488,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 圖表頁：雷達圖/熱力矩陣
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2503,7 +2503,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 附錄：12~24 期完整表
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -2530,7 +2530,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 pages.Add(BitmapToJpegBytes(bmp, 90L));
             }
 
-            // 最末頁：結語與參考資料模板
+            
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -3149,7 +3149,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             double downPlusMonthly = EstimateMonthlyPaymentSimple(price, downPlus, termYears, annualRate);
             impacts.Add(Tuple.Create("自備款 +5% 房價", Math.Abs(downPlusMonthly - baseMonthly)));
 
-            // 寬限期影響用「寬限期後月付金跳升風險」近似成衝擊值
+            
             double graceShock = baseMonthly * Math.Max(0, graceYears + 1) * 0.035;
             impacts.Add(Tuple.Create("寬限期 +1 年(風險衝擊)", graceShock));
 
@@ -3243,7 +3243,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             var sorted = impacts.OrderByDescending(x => x.Item2).Take(4).ToList();
             double maxImpact = Math.Max(1, sorted.Max(x => x.Item2));
 
-            // 往下放，避免和上方圖說文字重疊
+            
             int titleY = rect.Y + 2;
             g.DrawString("Tornado", new Font("微軟正黑體", 8F, FontStyle.Bold), Brushes.DimGray, rect.X, titleY);
 
@@ -3276,7 +3276,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 return;
             }
 
-            // Dual Charts - Left Donut, Right Area Chart
+            
             Rectangle rectPie = new Rectangle(10, 20, 160, 160);
             float principalAngle = (float)(totalLoan / totalRepayment * 360.0);
             float interestAngle = 360f - principalAngle;
@@ -3287,13 +3287,13 @@ namespace _1113354_陳冠瑋_房貸計算器
                 g.FillPie(pBrush, rectPie, -90, principalAngle);
                 g.FillPie(iBrush, rectPie, -90 + principalAngle, interestAngle);
                 
-                // Donut Hole
+                
                 using (SolidBrush whiteBrush = new SolidBrush(Color.White))
                 {
                     g.FillEllipse(whiteBrush, new Rectangle(rectPie.X + 40, rectPie.Y + 40, rectPie.Width - 80, rectPie.Height - 80));
                 }
 
-                // Legend
+                
                 int legendX = rectPie.Right + 20;
                 int legendY = 60;
                 g.FillRectangle(pBrush, legendX, legendY, 15, 15);
@@ -3303,7 +3303,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 g.DrawString($"利息: {(totalInterest/totalRepayment*100):F1}%", this.Font, Brushes.Black, legendX + 20, legendY + 28);
             }
 
-            // Draw enhanced + interactive charts
+            
             int chartX = rectPie.Right + 120;
             int chartWidth = picChart.Width - chartX - 20;
             int chartY = 28;
@@ -3317,7 +3317,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 _balanceCurveMonths.Clear();
                 g.DrawString("本金餘額趨勢（滑鼠滾輪縮放 / 點擊切線）", new Font("微軟正黑體", 8.5F), Brushes.Gray, chartX, 8);
 
-                // Grid
+                
                 using (Pen gridPen = new Pen(Color.FromArgb(225, 225, 225)))
                 {
                     for (int i = 0; i <= 4; i++)
@@ -3375,7 +3375,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                     _balanceCurveMonths.Add(idx + 1);
                 }
 
-                // area fill under balance line
+                
                 List<PointF> area = new List<PointF>();
                 area.Add(new PointF(chartX, chartY + chartHeight));
                 area.AddRange(balanceLine);
@@ -3399,9 +3399,9 @@ namespace _1113354_陳冠瑋_房貸計算器
                     if (_showPrincipalShareLine && paidLine.Count > 1) g.DrawLines(paidPen, paidLine.ToArray());
                 }
 
-                // 近12期本息構成 mini bars
+                
                 int bars = Math.Min(12, visibleCount);
-                // 保留右側資訊視覺區(雷達/熱力/Tornado)避免互相重疊
+                
                 float barsTotalW = Math.Max(20, chartWidth - 560);
                 if (bars > 0)
                 {
@@ -3428,14 +3428,14 @@ namespace _1113354_陳冠瑋_房貸計算器
                     }
                 }
 
-                // 右下角再加情境雷達 + 熱力矩陣 (加寬避免文字重疊)
+                
                 int radarW = 100;
                 int radarH = 75;
                 DrawTornadoMini(g, new Rectangle((int)(chartX + chartWidth - 420), miniY - 2, 145, radarH));
                 DrawScenarioRadar(g, new Rectangle((int)(chartX + chartWidth - 260), miniY - 4, radarW, radarH));
                 DrawScenarioHeatmap(g, new Rectangle((int)(chartX + chartWidth - 140), miniY - 4, 130, radarH));
 
-                // 加入 DTI 儀表板 (月付金 / 月收入)
+                
                 double monthlyIncome = _numMonthlyIncome != null ? (double)_numMonthlyIncome.Value : 0;
                 if (monthlyIncome > 0)
                 {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -218,16 +218,16 @@ namespace _1113354_陳冠瑋_房貸計算器
             _rentNetWorth.Clear();
             _breakevenYear = -1;
 
-            double currentRent = (double)numRent.Value * 12; // 年租金
+            double currentRent = (double)numRent.Value * 12; 
             double rentInf = (double)numRentInf.Value / 100.0;
             double propApp = (double)numPropApp.Value / 100.0;
             double invRate = (double)numInvest.Value / 100.0;
             double propTax = (double)numPropTax.Value / 100.0;
 
-            int horizon = Math.Max(30, _termYears); // 分析 30 年或房貸期
+            int horizon = Math.Max(30, _termYears); 
             
-            // 初始淨值
-            double renterPortfolio = _downPayment; // 租房者把頭期款拿去投資
+            
+            double renterPortfolio = _downPayment; 
             double buyerPropValue = _propertyPrice;
             double loanBalance = _loanAmount;
             
@@ -235,8 +235,8 @@ namespace _1113354_陳冠瑋_房貸計算器
 
             for (int y = 1; y <= horizon; y++)
             {
-                // ========== 買房者現金流 ==========
-                // 年度房貸支付
+                
+                
                 double annualMortgage = 0;
                 double annualPrincipal = 0;
                 for (int m = 1; m <= 12; m++)
@@ -256,29 +256,29 @@ namespace _1113354_陳冠瑋_房貸計算器
                 double annualTaxes = buyerPropValue * propTax;
                 double totalBuyOutflow = annualMortgage + annualTaxes;
 
-                // ========== 租房者現金流 ==========
+                
                 double totalRentOutflow = currentRent;
                 currentRent *= (1 + rentInf);
 
-                // ========== 差額投資與淨資產結算 ==========
-                // 假設兩人每年都有相同的剛性預算: Math.Max(totalBuyOutflow, totalRentOutflow)
-                // 誰花得少，誰就把差額投入無風險資產
+                
+                
+                
                 double maxBudget = Math.Max(totalBuyOutflow, totalRentOutflow);
                 
                 double renterSurplus = maxBudget - totalRentOutflow;
                 renterPortfolio = (renterPortfolio + renterSurplus) * (1 + invRate);
 
                 double buyerSurplus = maxBudget - totalBuyOutflow;
-                double buyerPortfolio = 0; // 簡化：買房者多餘的錢通常不累積(或者可投資)
-                // 為了公平，買房者的剩餘資金也應投資，或視為淨資產累加
+                double buyerPortfolio = 0; 
+                
                 double buyerNetWorth = buyerPropValue - loanBalance; 
-                // 加上額外剩餘資金的投資
-                // 但實務上通常把總淨資產當作：(房產價值 - 剩餘貸款) + 買房者長期累積的投資組合
-                // 這裡我們直接比較兩者的財富儲備池
+                
+                
+                
 
-                // 以「租房者投資池」 vs 「買房者房產淨值」為主要對比
+                
                 _rentNetWorth.Add(renterPortfolio);
-                _buyNetWorth.Add(buyerNetWorth); // 忽略買方可能有的微小現金剩餘，凸顯房產槓桿
+                _buyNetWorth.Add(buyerNetWorth); 
 
                 if (_breakevenYear == -1 && buyerNetWorth > renterPortfolio)
                 {
@@ -320,7 +320,7 @@ namespace _1113354_陳冠瑋_房貸計算器
             double maxNet = Math.Max(_buyNetWorth.Max(), _rentNetWorth.Max());
             double minNet = 0;
 
-            // Draw Grids
+            
             using (Pen gridPen = new Pen(Color.FromArgb(230, 230, 230)))
             {
                 for (int i = 0; i <= 5; i++)
@@ -360,7 +360,7 @@ namespace _1113354_陳冠瑋_房貸計算器
                 g.DrawLines(penRent, ptsRent.ToArray());
             }
 
-            // Legend
+            
             g.FillRectangle(new SolidBrush(Color.FromArgb(41, 128, 185)), paddingL + 20, 15, 15, 10);
             g.DrawString("買房淨資產 (Property Equity)", new Font("微軟正黑體", 9), Brushes.Black, paddingL + 40, 12);
 
