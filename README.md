@@ -50,10 +50,13 @@
 - `1113354_陳冠瑋_房貸計算器/Form1.cs`：主要邏輯、UI 強化、報告輸出
 - `1113354_陳冠瑋_房貸計算器/Form1.Designer.cs`：WinForms 介面配置
 
-## 截圖（建議補上）
+## 截圖
 
-- 主畫面（輸入區 + 圖表）
-- 情境比較分頁
-- PDF 匯出結果
+- **情境比較分頁**
+  ![情境比較](docs/images/compare.png)
 
-> 建議將截圖放在 `docs/images/`，並在此 README 以 Markdown 圖片連結顯示。
+- **AI 財務分析報告 (ZKP & RL)**
+  ![AI 財務分析報告](docs/images/ai_report.png)
+
+- **租買決策機會成本模型**
+  ![租買決策機會成本模型](docs/images/rent_vs_buy.png)
